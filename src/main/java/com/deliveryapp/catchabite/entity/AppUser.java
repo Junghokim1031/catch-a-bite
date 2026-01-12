@@ -7,6 +7,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.deliveryapp.catchabite.auth.domain.AccountStatus;
+
 @Entity
 @Table(name = "APP_USER")
 @Getter
@@ -27,6 +29,11 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "APP_USER_ID")
     private Long appUserId;
+    
+    // ✅ 추가 (로그인 아이디)
+    @Column(
+        name = "APP_USER_LOGIN_ID", nullable = false, unique = true, length = 50)
+    private String appUserLoginId;
 
     @Column(
             name = "APP_USER_NICKNAME",
@@ -110,4 +117,8 @@ public class AppUser {
     @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Notification> notifications = new ArrayList<>();
+
+    public void changePassword(String encodedPassword) {
+    this.appUserPassword = encodedPassword;
+}
 }

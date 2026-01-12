@@ -51,7 +51,7 @@ public class OrderItem {
     @Column(name = "order_item_quantity", nullable = false)
     private Integer orderItemQuantity;
 
-    @OneToMany(mappedBy = "orderItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "orderItemId", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderOption> orderOptions = new ArrayList<>();
 

@@ -56,10 +56,10 @@ public class StoreOrder {
     @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private Review review;
 
-    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "orderId", fetch = FetchType.LAZY)
     private OrderDelivery orderDelivery;
 
-    @OneToMany(mappedBy = "storeOrder", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "orderId", cascade=CascadeType.ALL)
     private Set<OrderItem> orderItem;
 }
 
