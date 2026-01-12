@@ -31,9 +31,10 @@ public class DelivererPayment {
     @Column(name = "deliverer_payment_id")
     private Long delivererPaymentId;
 
+    // deliverer_id는 deliverer.getDelivererId()로 꺼낸다.
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "deliverer_id", nullable = false)
-    private Deliverer delivererId;
+    private Deliverer deliverer;
 
     // 최소 요금
     @Column(name = "deliverer_payment_minimum_fee", nullable = false)

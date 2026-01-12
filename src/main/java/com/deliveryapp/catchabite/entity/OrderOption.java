@@ -33,7 +33,7 @@ public class OrderOption {
     // ERD: ORDER_ITEM_ID (FK)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_item_id", nullable = false)
-    private OrderItem orderItemId;
+    private OrderItem orderItem;
 
     // ERD: ORDER_OPTION_NAME varchar2(100) (NN)
     @Column(name = "order_option_name", length = 100, nullable = false)

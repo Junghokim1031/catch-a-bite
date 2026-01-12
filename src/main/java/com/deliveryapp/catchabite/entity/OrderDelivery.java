@@ -36,14 +36,16 @@ public class OrderDelivery {
     private Long deliveryId;
 
     // store_order테이블의 PK를 FK로 가져옴
+    // order_id는 storeOrder.getStoreOrderID()로 꺼냄
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private StoreOrder orderId;
+    private StoreOrder storeOrder;
 
     // 배정 전에는 NULL 가능 -> Not Null로 설정함
+    // deliverer_id는 deliverer.getDelivererId()로 꺼낸다.
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deliverer_id", nullable = false)
-    private Deliverer delivererId;
+    private Deliverer deliverer;
 
     // 배달 대행 수락한 시간
     @Column(name = "order_accept_time")

@@ -35,9 +35,10 @@ public class OrderItem {
     private Long orderItemId;
 
     // ERD: ORDER_ID (NN)
+    // order_id는 storeOrder.getStoreOrderID()로 꺼냄
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
-    private StoreOrder orderId;
+    private StoreOrder storeOrder;
 
     // ERD: ORDER_ITEM_NAME varchar2(100) (NN)
     @Column(name = "order_item_name", length = 100, nullable = false)
@@ -59,12 +60,12 @@ public class OrderItem {
     // 주문 추가 메서드
     public void addOrderOption(OrderOption option) {
         orderOptions.add(option);
-        option.setOrderItemId(this);
+        option.setOrderItem(this);
     }
 
     // 주문 삭제 메서드
     public void removeOrderOption(OrderOption option) {
         orderOptions.remove(option);
-        option.setOrderItemId(null);
+        option.setOrderItem(null);
     }
 }
