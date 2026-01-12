@@ -37,7 +37,7 @@ public class OrderDelivery {
 
     // store_order테이블의 PK를 FK로 가져옴
     // order_id는 storeOrder.getStoreOrderID()로 꺼냄
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "order_id", nullable = false)
     private StoreOrder storeOrder;
 
