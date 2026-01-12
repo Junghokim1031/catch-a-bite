@@ -1,5 +1,6 @@
 package com.deliveryapp.catchabite.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.deliveryapp.catchabite.domain.enumtype.DeliveryStatus;
@@ -64,7 +65,7 @@ public class OrderDelivery {
 
     // 거리/시간(분)
     @Column(name = "order_delivery_distance", precision = 10, scale = 2)
-    private Integer orderDeliveryDistance;
+    private BigDecimal orderDeliveryDistance;
 
     @Column(name = "order_delivery_est_time")
     private Integer orderDeliveryEstTime;
