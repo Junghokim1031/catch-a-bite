@@ -36,6 +36,6 @@ public class OrderItemDTO {
     // 수량은 보통 0이상 또는 일반적으로 1이상
     @NotNull
     @Positive
-    private Long orderItemQuantity;
+    private Integer orderItemQuantity;
     
 }
