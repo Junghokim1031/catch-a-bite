@@ -1,10 +1,8 @@
 package com.deliveryapp.catchabite.entity;
 
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
-
-import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.GenerationType;
@@ -32,15 +30,15 @@ public class DelivererPayment {
     private Long delivererPaymentId;
 
     // deliverer_id는 deliverer.getDelivererId()로 꺼낸다.
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "deliverer_id", nullable = false)
     private Deliverer deliverer;
 
     // 최소 요금
     @Column(name = "deliverer_payment_minimum_fee", nullable = false)
-    private BigDecimal delivererPaymentMinimumFee;
+    private Long delivererPaymentMinimumFee;
 
     // 거리 당 추가 요금
     @Column(name = "deliverer_payment_distance_fee")
-    private BigDecimal delivererPaymentDistanceFee;
+    private Long delivererPaymentDistanceFee;
 }

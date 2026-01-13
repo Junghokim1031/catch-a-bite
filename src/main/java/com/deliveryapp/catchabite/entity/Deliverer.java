@@ -34,12 +34,11 @@ public class Deliverer {
     private Long delivererId;
 
 
-    // 1월 12일에 추가한 부분 - 라이더 로그인에 이용할 ID, PW
-    @Column(name = "deliverer_email", length = 255, nullable = false)
-    private String delivererEmail;
+    @Column(name = "deliverer_email", nullable = false, unique = true, length = 255)
+    private String delivererEmail; // 로그인 이메일
 
-    @Column(name = "deliverer_password", length = 255, nullable = false)
-    private String delivererPassword;
+    @Column(name = "deliverer_password", nullable = false, length = 255)
+    private String delivererPassword; // 비밀번호
 
 
     // 오토바이/자전거/차량/walking
@@ -54,9 +53,9 @@ public class Deliverer {
     private String delivererVehicleNumber;
 
     // 배달 가능 상태
-    // Y: 가능 / N: 불가능      ----> 기본값을 'N'으로 설정해야 한다고 생각함.
+    // Y: 가능 / N: 불가능
     @Enumerated(EnumType.STRING)
-    @Column(name = "deliverer_status", length = 1, nullable = false)
+    @Column(name = "deliverer_status", length = 1, nullable = true)
     private YesNo delivererStatus;
 
     // 마지막 로그인
@@ -65,9 +64,11 @@ public class Deliverer {
 
     // 본인인증 여부 (Y/N)
     @Enumerated(EnumType.STRING)
-    @Column(name = "deliverer_verified", length = 1, nullable = false)
+    @Column(name = "deliverer_verified", length = 1, nullable = true)
     private YesNo delivererVerified;
 
+    @Column(name = "deliverer_created_date")
+    private LocalDateTime delivererCreatedDate; // 생성일
 
     @PrePersist
     void prePersist() {
@@ -75,6 +76,7 @@ public class Deliverer {
         if (delivererStatus == null) delivererStatus = YesNo.Y;     // Oracle DEFAULT 'Y'
         // MariaDB에서 deliverer_verified의 기본값을 'N'로 초기화
         if (delivererVerified == null) delivererVerified = YesNo.N; // Oracle DEFAULT 'N'
+        if (delivererCreatedDate == null) delivererCreatedDate = LocalDateTime.now(); // 생성일 자동
     }
 
 }

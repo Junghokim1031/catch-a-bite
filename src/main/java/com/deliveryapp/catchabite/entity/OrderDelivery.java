@@ -40,10 +40,10 @@ public class OrderDelivery {
     // store_order테이블의 PK를 FK로 가져옴
     // order_id는 storeOrder.getStoreOrderID()로 꺼냄
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "order_id", nullable = false)
+    @JoinColumn(name = "order_id", nullable = false, unique = true)
     private StoreOrder storeOrder;
 
-    // 배정 전에는 NULL 가능 -> Not Null로 설정함
+    // 배정 전에는 NULL 가능
     // deliverer_id는 deliverer.getDelivererId()로 꺼낸다.
     // 한 배달기사는 여러 배달을 수행할 수 있음 (M:1)
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
@@ -77,11 +77,11 @@ public class OrderDelivery {
 
     // 주문 배송 상태
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_delivery_status", length = 20, nullable = false)
+    @Column(name = "order_delivery_status", length = 20)
     private DeliveryStatus orderDeliveryStatus;
 
     // 배차(배달) 요청이 음식점에서 배달원에게 날라간 시간
-    @Column(name = "order_delivery_created_date", nullable = false)
+    @Column(name = "order_delivery_created_date")
     private LocalDateTime orderDeliveryCreatedDate;
 
     @PrePersist
