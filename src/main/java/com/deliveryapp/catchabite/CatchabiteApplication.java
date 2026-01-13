@@ -3,11 +3,12 @@ package com.deliveryapp.catchabite;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+
 @SpringBootApplication
 public class CatchabiteApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CatchabiteApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CatchabiteApplication.class, args);
+    }
 
 }
