@@ -57,10 +57,10 @@ public class StoreOrder {
     // @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     // private Review review;
 
-    @OneToOne(mappedBy = "orderId", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.EAGER)
     private OrderDelivery orderDelivery;
 
-    @OneToMany(mappedBy = "order", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "storeOrder", cascade=CascadeType.ALL)
 	@Builder.Default
     private List<OrderItem> orderItem = new ArrayList<>();
 

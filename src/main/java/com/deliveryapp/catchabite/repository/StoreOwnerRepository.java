@@ -17,4 +17,6 @@ public interface StoreOwnerRepository extends JpaRepository<StoreOwner, Long> {
 
     // 휴대폰 번호 중복 여부 확인
     boolean existsByStoreOwnerMobile(String storeOwnerMobile);
+
+    boolean existsByStoreOwnerBusinessRegistrationNo(String storeOwnerBusinessRegistrationNo);
 }

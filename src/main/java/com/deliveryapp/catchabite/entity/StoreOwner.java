@@ -10,7 +10,11 @@ import java.time.LocalDateTime;
         name = "store_owner",
         uniqueConstraints = {
                 @UniqueConstraint(name = "uk_store_owner_email", columnNames = "store_owner_email"),
-                @UniqueConstraint(name = "uk_store_owner_mobile", columnNames = "store_owner_mobile")
+                @UniqueConstraint(name = "uk_store_owner_mobile", columnNames = "store_owner_mobile"),
+                @UniqueConstraint(
+                        name = "uk_store_owner_business_registration_no",
+                        columnNames = "store_owner_business_registration_no"
+                )
         }
 )
 @Getter
@@ -35,6 +39,9 @@ public class StoreOwner {
 
     @Column(name = "store_owner_mobile", nullable = false, length = 11)
     private String storeOwnerMobile;
+
+    @Column(name = "store_owner_business_registration_no", length = 20, unique = true)
+    private String storeOwnerBusinessRegistrationNo;
 
     /**
      * 'Y' or 'N'

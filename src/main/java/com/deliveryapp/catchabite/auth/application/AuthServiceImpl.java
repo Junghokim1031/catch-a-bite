@@ -2,6 +2,7 @@ package com.deliveryapp.catchabite.auth.application;
 
 import com.deliveryapp.catchabite.auth.api.dto.*;
 import com.deliveryapp.catchabite.common.constant.RoleConstant;
+import com.deliveryapp.catchabite.common.exception.InvalidCredentialsException;
 import com.deliveryapp.catchabite.entity.AppUser;
 import com.deliveryapp.catchabite.repository.AppUserRepository;
 import jakarta.transaction.Transactional;
@@ -80,11 +81,11 @@ public class AuthServiceImpl implements AuthService {
 
         AppUser account = appUserRepository
             .findByAppUserEmailOrAppUserMobile(request.loginKey(), request.loginKey())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid credentials."));
+            .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
 
         // 비밀번호 일치 여부 검증
         if (!passwordEncoder.matches(request.password(), account.getAppUserPassword())) {
-            throw new IllegalArgumentException("Invalid credentials.");
+            throw new InvalidCredentialsException("Invalid credentials.");
         }
 
         return new LoginResponse(

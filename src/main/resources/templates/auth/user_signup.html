@@ -338,10 +338,11 @@
             <h1 class="auth-title">로그인</h1>
             <p class="auth-subtitle">개인회원</p>
           </div>
-          <a class="back-link" href="/auth/login">유형 변경</a>
+          <a class="back-link" href="/auth/select">유형 변경</a>
         </div>
-        <div class="notice-stack" th:if="${param.signup != null or param.error != null or param.logout != null}">
+        <div class="notice-stack" th:if="${param.signup != null or param.loginSuccess != null or param.error != null or param.logout != null}">
           <div class="notice success" th:if="${param.signup}">회원가입이 완료되었습니다. 로그인해주세요.</div>
+          <div class="notice success" th:if="${param.loginSuccess}">로그인에 성공했습니다. 잠시 후 이동합니다.</div>
           <div class="notice error" th:if="${param.error}">아이디 또는 비밀번호가 올바르지 않습니다.</div>
           <div class="notice info" th:if="${param.logout}">로그아웃 되었습니다.</div>
         </div>
@@ -368,7 +369,7 @@
             <h1 class="auth-title">회원 가입</h1>
             <p class="auth-subtitle">개인회원</p>
           </div>
-          <a class="back-link" href="/auth/login">유형 변경</a>
+          <a class="back-link" href="/auth/select">유형 변경</a>
         </div>
         <form class="signup-form" action="/auth/user/signup" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -437,7 +438,7 @@
               required
             />
           </div>
-          <div class="field-group" style="--order: 9;">
+          <!-- <div class="field-group" style="--order: 9;">
             <label>
               <input type="checkbox" name="requiredTermsAccepted" required />
               필수 약관 동의
@@ -448,7 +449,7 @@
               <input type="checkbox" name="marketingTermsAccepted" />
               마케팅 수신 동의 (선택)
             </label>
-          </div>
+          </div> -->
           <button type="submit" class="primary-button">가입하기</button>
           <div class="login-actions">
             <button type="button" class="pill-button outline" data-action="show-login">로그인</button>
@@ -497,6 +498,13 @@
       }
 
       showLogin();
+
+      const loginSuccess = new URLSearchParams(window.location.search).has("loginSuccess");
+      if (loginSuccess) {
+        setTimeout(() => {
+          window.location.href = "/user/main";
+        }, 1200);
+      }
 
       const yearSelect = shell.querySelector("select[name='birthYear']");
       const monthSelect = shell.querySelector("select[name='birthMonth']");
