@@ -45,6 +45,15 @@ public class StoreOwner {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(
+    name = "store_owner_business_registration_no",
+    nullable = false,
+    unique = true,
+    length = 50
+    )
+    private String storeOwnerBusinessRegistrationNo;
+
+
     @PrePersist
     void prePersist() {
         if (this.storeOwnerStatus == null) this.storeOwnerStatus = "Y";

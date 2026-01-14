@@ -24,15 +24,28 @@ public class Menu {
     @JoinColumn(name = "menu_category_id", nullable = false)
     private MenuCategory menuCategory;
 
-    @Column(name = "menu_name")
+    @Column(name = "menu_name", nullable = false)
     private String menuName;
 
-    @Column(name = "menu_price")
+    @Column(name = "menu_price", nullable = false)
     private Integer menuPrice;
 
     @Column(name = "menu_description")
     private String menuDescription;
 
-    @Column(name = "menu_is_available")
+    @Column(name = "menu_is_available", nullable = false)
     private Boolean menuIsAvailable;
+
+    public void changeInfo(MenuCategory category, String name, Integer price, String description) {
+        this.menuCategory = category;
+        this.menuName = name;
+        this.menuPrice = price;
+        this.menuDescription = description;
+    }
+
+    public void changeAvailability(Boolean isAvailable) {
+        this.menuIsAvailable = isAvailable;
+    }
+
+
 }

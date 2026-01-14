@@ -1,25 +1,28 @@
 package com.deliveryapp.catchabite.dto;
 
+import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import lombok.*;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class StoreCreateRequestDto {
+public class StoreDTO {
 
-	private String storeOwnerName;
+	private Long storeId;
+
 	private String storeName;
+	private String storePhone;
 	private String storeAddress;
 	private String storeCategory;
-	private String storePhone;
 
 	private Integer storeMinOrder;
-	private Integer storeMaxDist;
 	private Integer storeDeliveryFee;
 
 	private Integer storeOpenTime;
 	private Integer storeCloseTime;
+
+	private StoreOpenStatus storeOpenStatus;
 
 	private String storeIntro;
 }

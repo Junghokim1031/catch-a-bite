@@ -25,4 +25,10 @@ public class MenuOptionGroup {
 
     @Column(name = "menu_option_group_required")
     private Boolean menuOptionGroupRequired;
+
+    public void changeInfo(String name, Boolean required) {
+	this.menuOptionGroupName = name;
+	this.menuOptionGroupRequired = required;
+    }
+
 }

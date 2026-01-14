@@ -22,4 +22,9 @@ public class MenuCategory {
 
     @Column(name = "menu_category_name")
     private String menuCategoryName;
+
+    public void changeName(String menuCategoryName) {
+    this.menuCategoryName = menuCategoryName;
+}
+
 }
