@@ -51,16 +51,16 @@ public class StoreOrder {
     @Column(name = "ORDER_DATE")
     private LocalDateTime orderDate;
 
-    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     private Payment payment;
 
     // @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     // private Review review;
 
-    @OneToOne(mappedBy = "orderId", fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     private OrderDelivery orderDelivery;
 
-    @OneToMany(mappedBy = "order", cascade=CascadeType.ALL)
+    @OneToMany(mappedBy = "storeOrder", cascade=CascadeType.ALL)
 	@Builder.Default
     private List<OrderItem> orderItem = new ArrayList<>();
 

@@ -2,7 +2,8 @@ package com.deliveryapp.catchabite.transaction.service;
 
 import com.deliveryapp.catchabite.transaction.entity.Transaction;
 import com.deliveryapp.catchabite.transaction.repository.TransactionRepository;
-import lombok.extern.slf4j.Slf4j;
+
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.Optional;
  * Dependencies: TransactionRepository, Slf4j
  */
 
-@Slf4j
+@Log4j2
 @Service
 public class TransactionService {
     

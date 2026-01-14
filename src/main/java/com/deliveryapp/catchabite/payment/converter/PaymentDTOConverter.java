@@ -3,7 +3,8 @@ package com.deliveryapp.catchabite.payment.converter;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentRequestDTO;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentResponseDTO;
 import com.deliveryapp.catchabite.common.constant.PaymentConstant;
-import lombok.extern.slf4j.Slf4j;
+
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Component;
  * Dependencies: PaymentConstant, Lombok
  */
 
-@Slf4j
+@Log4j2
 @Component
 public class PaymentDTOConverter {
     

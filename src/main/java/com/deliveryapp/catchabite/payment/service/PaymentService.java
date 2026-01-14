@@ -11,7 +11,9 @@ import com.deliveryapp.catchabite.payment.converter.PaymentDTOConverter;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentRequestDTO;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentResponseDTO;
 import com.deliveryapp.catchabite.payment.repository.PaymentRepository;
-import lombok.extern.slf4j.Slf4j;
+
+import lombok.extern.log4j.Log4j2;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,7 +44,7 @@ import java.time.LocalDateTime;
  *               PaymentDTOConverter, PaymentConstant
  */
 
-@Slf4j
+@Log4j2
 @Service
 public class PaymentService {
     
@@ -54,7 +56,7 @@ public class PaymentService {
     @Value("${portone.store-id}")
     private String portoneImpKey;
     
-    @Value("${portone.api-url:https://api.iamport.kr}")
+    @Value("${portone.baseUrl}")
     private String portoneApiUrl;
     
     /**
@@ -102,22 +104,34 @@ public class PaymentService {
                             PaymentConstant.ERROR_ORDER_NOT_FOUND
                     ));
             
-            // Step 2: 주문의 사용자 정보 확인 (StoreOrder.appUser에서)
+            log.info("Order found: {}", order.getOrderId());
+            
+            // Step 2: 주문의 사용자 정보 확인
             AppUser appUser = order.getAppUser();
             if (appUser == null) {
+                log.error("AppUser is NULL for order_id: {}", order.getOrderId());
                 throw new PaymentException(
                         "USER_NOT_FOUND",
                         "User associated with order not found"
                 );
             }
             
-            log.info("Order found. user: {}, store: {}", 
-                    appUser.getAppUserEmail(), 
-                    order.getStore().getStoreName());
+            log.info("AppUser found: {} (email: {})", appUser.getAppUserNickname(), appUser.getAppUserEmail());
             
-            // Step 3: merchant_uid 생성 (고유해야 함)
-            // 형식: "ORDER_" + orderId + "_" + timestamp
+            // Step 2-2: Store 확인
+            if (order.getStore() == null) {
+                log.error("Store is NULL for order_id: {}", order.getOrderId());
+                throw new PaymentException(
+                        "STORE_NOT_FOUND",
+                        "Store associated with order not found"
+                );
+            }
+            
+            log.info("Store found: {}", order.getStore().getStoreName());
+            
+            // Step 3: merchant_uid 생성
             String merchantUid = generateMerchantUid(request.getOrderId());
+            log.info("Generated merchant_uid: {}", merchantUid);
             
             // Step 4: Payment 엔티티 생성
             Payment payment = Payment.builder()
@@ -127,12 +141,11 @@ public class PaymentService {
                             PaymentConstant.PAYMENT_METHOD_CARD)
                     .paymentAmount(request.getPaymentAmount())
                     .paymentStatus(PaymentConstant.PAYMENT_STATUS_PENDING)
-                    // paymentPaidAt은 결제 완료 후 설정됨
                     .build();
             
+            log.info("Creating Payment entity with status: PENDING");
             Payment savedPayment = paymentRepository.save(payment);
-            log.info("Payment created with PENDING status. payment_id: {}", 
-                    savedPayment.getPaymentId());
+            log.info("Payment saved successfully. payment_id: {}", savedPayment.getPaymentId());
             
             // Step 5: PortOne 응답 생성
             PortOnePaymentResponseDTO response = 
@@ -143,6 +156,7 @@ public class PaymentService {
                             System.currentTimeMillis()
                     );
             
+            log.info("Response DTO created");
             response.setApiEndpoint(portoneApiUrl);
             
             log.info("Payment preparation completed successfully");
@@ -152,7 +166,7 @@ public class PaymentService {
             log.error("Payment preparation failed: {}", pe.getErrorMessage());
             throw pe;
         } catch (Exception e) {
-            log.error("Unexpected error during payment preparation", e);
+            log.error("❌ Unexpected error during payment preparation", e);  // 🔴 Full stack trace
             throw new PaymentException(
                     "PAYMENT_PREPARATION_ERROR",
                     "Unexpected error during payment preparation",
@@ -160,6 +174,8 @@ public class PaymentService {
             );
         }
     }
+
+
     
     /**
      * merchant_uid 생성

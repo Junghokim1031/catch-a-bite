@@ -42,6 +42,6 @@ public class PortOneConfig {
      * PortOne API 기본 URL
      * 기본값: https://api.iamport.kr
      */
-    @Value("${portone.api-url:https://api.iamport.kr}")
+    @Value("${portone.baseUrl}")
     private String apiUrl;
 }
