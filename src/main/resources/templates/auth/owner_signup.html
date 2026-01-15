@@ -23,9 +23,7 @@
       --shadow: 0 18px 40px rgba(28, 24, 20, 0.12);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -59,17 +57,9 @@
       z-index: 1;
     }
 
-    .auth-shell .auth-panel {
-      width: min(520px, 100%);
-    }
-
-    .auth-shell.is-signup .auth-panel {
-      width: min(760px, 100%);
-    }
-
-    .auth-panel[hidden] {
-      display: none;
-    }
+    .auth-shell .auth-panel { width: min(520px, 100%); }
+    .auth-shell.is-signup .auth-panel { width: min(760px, 100%); }
+    .auth-panel[hidden] { display: none; }
 
     .auth-panel {
       border: 1px solid var(--line);
@@ -80,9 +70,7 @@
       animation: panel-in 0.6s ease both;
     }
 
-    .auth-panel.login {
-      background: var(--panel-strong);
-    }
+    .auth-panel.login { background: var(--panel-strong); }
 
     .panel-header {
       display: flex;
@@ -117,10 +105,7 @@
       white-space: nowrap;
     }
 
-    .signup-form,
-    .login-form {
-      display: grid;
-    }
+    .signup-form, .login-form { display: grid; }
 
     .field-group {
       margin-bottom: 16px;
@@ -141,12 +126,7 @@
       gap: 10px;
     }
 
-    .birth-row .field-row {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    input,
-    select {
+    input {
       width: 100%;
       border: 1px solid var(--line);
       border-radius: 4px;
@@ -157,18 +137,7 @@
       color: var(--text);
     }
 
-    select {
-      appearance: none;
-      background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
-        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
-      background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%;
-      background-size: 5px 5px, 5px 5px;
-      background-repeat: no-repeat;
-      padding-right: 28px;
-    }
-
-    input:focus,
-    select:focus {
+    input:focus {
       outline: 2px solid rgba(100, 96, 90, 0.2);
       border-color: var(--accent);
     }
@@ -208,17 +177,9 @@
       font-size: 13px;
     }
 
-    .notice.success {
-      background: var(--notice-success);
-    }
-
-    .notice.error {
-      background: var(--notice-error);
-    }
-
-    .notice.info {
-      background: var(--notice-info);
-    }
+    .notice.success { background: var(--notice-success); }
+    .notice.error { background: var(--notice-error); }
+    .notice.info { background: var(--notice-info); }
 
     .line-field {
       display: block;
@@ -273,83 +234,75 @@
       color: var(--accent);
     }
 
-    button:focus-visible,
-    a:focus-visible {
+    .mini-hint {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .inline-message {
+      margin-top: 10px;
+      font-size: 13px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      display: none;
+    }
+    .inline-message.show { display: block; }
+    .inline-message.ok { background: var(--notice-success); }
+    .inline-message.bad { background: var(--notice-error); }
+
+    button:focus-visible, a:focus-visible {
       outline: 2px solid rgba(100, 96, 90, 0.4);
       outline-offset: 2px;
     }
 
     @media (max-width: 560px) {
-      .auth-shell {
-        width: 92vw;
-        margin: 36px auto 60px;
-      }
-
-      .auth-panel {
-        padding: 24px 22px 28px;
-      }
-
-      .field-row {
-        grid-template-columns: 1fr;
-      }
-
-      .birth-row .field-row {
-        grid-template-columns: 1fr 1fr;
-      }
+      .auth-shell { width: 92vw; margin: 36px auto 60px; }
+      .auth-panel { padding: 24px 22px 28px; }
+      .field-row { grid-template-columns: 1fr; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .auth-panel,
-      .field-group,
-      .line-field {
-        animation: none;
-      }
+      .auth-panel, .field-group, .line-field { animation: none; }
     }
 
     @keyframes panel-in {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes field-rise {
-      from {
-        opacity: 0;
-        transform: translateY(14px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
 <body>
   <div id="auth-root">
     <main class="auth-shell is-login">
+      <!-- 로그인 -->
       <section class="auth-panel login" id="login-panel">
         <div class="panel-header">
           <div>
             <h1 class="auth-title">로그인</h1>
             <p class="auth-subtitle">사업자</p>
           </div>
-          <a class="back-link" href="/auth/login">유형 변경</a>
+          <a class="back-link" href="/auth/select">유형 변경</a>
         </div>
-        <div class="notice-stack" th:if="${param.signup != null or param.error != null or param.logout != null}">
+
+        <div class="notice-stack" th:if="${param.signup != null or param.loginSuccess != null or param.error != null or param.logout != null}">
           <div class="notice success" th:if="${param.signup}">회원가입이 완료되었습니다. 로그인해주세요.</div>
-          <div class="notice error" th:if="${param.error}">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+          <div class="notice success" th:if="${param.loginSuccess}">로그인에 성공했습니다. 잠시 후 이동합니다.</div>
+          <div class="notice error" th:if="${param.error}">이메일 또는 비밀번호가 올바르지 않습니다.</div>
           <div class="notice info" th:if="${param.logout}">로그아웃 되었습니다.</div>
         </div>
+
         <form class="login-form" action="/auth/owner/login" method="post">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
           <label class="line-field" style="--order: 1;">
             <span>이메일</span>
-            <input name="loginKey" type="text" autoComplete="username" required />
+            <input name="email" type="text" autoComplete="username" required />
           </label>
           <label class="line-field" style="--order: 2;">
             <span>비밀번호</span>
@@ -362,69 +315,88 @@
         </form>
       </section>
 
+      <!-- 회원가입 -->
       <section class="auth-panel signup" id="signup-panel" hidden>
         <div class="panel-header">
           <div>
             <h1 class="auth-title">회원 가입</h1>
             <p class="auth-subtitle">사업자</p>
           </div>
-          <a class="back-link" href="/auth/login">유형 변경</a>
+          <a class="back-link" href="/auth/select">유형 변경</a>
         </div>
-        <form class="signup-form" action="/auth/owner/signup" method="post">
+
+        <form class="signup-form" action="/auth/owner/signup" method="post" id="owner-signup-form">
           <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
           <div class="field-group" style="--order: 1;">
             <label>이메일</label>
             <div class="field-row">
               <input
-                id="signup-loginId"
-                name="loginId"
+                id="signup-email"
+                name="email"
                 type="text"
-                placeholder="user@test.com"
+                placeholder="owner@test.com"
                 autoComplete="username"
                 required
               />
-              <button type="button" class="ghost-button">중복확인</button>
+              <button type="button" class="ghost-button" id="btn-check-email">중복확인</button>
             </div>
+            <div class="mini-hint">예) owner@test.com</div>
+            <div class="inline-message" id="email-check-message"></div>
           </div>
+
           <div class="field-group" style="--order: 2;">
             <label>비밀번호</label>
             <input id="signup-password" name="password" type="password" autoComplete="new-password" required />
+            <div class="mini-hint">8~30자, 영문/숫자 조합 권장</div>
           </div>
+
           <div class="field-group" style="--order: 3;">
             <label>비밀번호 재확인</label>
-            <input id="signup-password-confirm" name="confirmPassword" type="password" autoComplete="new-password" required />
+            <input id="signup-confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+            <div class="inline-message" id="pw-match-message"></div>
           </div>
+
           <div class="field-group" style="--order: 4;">
-            <label>이름</label>
-            <input id="signup-name" name="name" type="text" required />
+            <label>대표자명</label>
+            <input id="signup-name" name="name" type="text" placeholder="홍길동" required />
           </div>
+
           <div class="field-group" style="--order: 5;">
-            <label>닉네임</label>
-            <input id="signup-nickname" name="nickname" type="text" />
+            <label>사업자등록번호</label>
+            <input
+              id="signup-businessRegistrationNo"
+              name="businessRegistrationNo"
+              type="text"
+              placeholder="123-45-67890"
+              required
+            />
+            <div class="mini-hint">예) 123-45-67890 (하이픈 포함/미포함 모두 가능)</div>
           </div>
-          <div class="field-group birth-row" style="--order: 6;">
-            <label>생년월일</label>
-            <div class="field-row">
-              <select name="birthYear">
-                <option value="">년(4자)</option>
-              </select>
-              <select name="birthMonth">
-                <option value="">월</option>
-              </select>
-              <select name="birthDay">
-                <option value="">일</option>
-              </select>
-            </div>
+
+          <div class="field-group" style="--order: 6;">
+            <label>상호명</label>
+            <input
+              id="signup-storeName"
+              name="storeName"
+              type="text"
+              placeholder="길동치킨"
+              required
+            />
           </div>
+
           <div class="field-group" style="--order: 7;">
-            <label>성별</label>
-            <select name="gender">
-              <option value="">선택</option>
-              <option value="F">여성</option>
-              <option value="M">남성</option>
-              <option value="N">선택 안 함</option>
-            </select>
+            <label>사업장 주소</label>
+            <input
+              id="signup-address"
+                name="storeAddress"
+              type="text"
+              placeholder="서울특별시 강남구 ..."
+              required
+            />
+            <div class="mini-hint">나중에 도로명/상세 분리 가능</div>
           </div>
+
           <div class="field-group" style="--order: 8;">
             <label>휴대폰</label>
             <input
@@ -433,11 +405,14 @@
               type="tel"
               inputMode="numeric"
               placeholder="01012345678"
-              pattern="[0-9]{11}"
+              pattern="[0-9]{10,11}"
               required
             />
+            <div class="mini-hint">숫자만 입력 (10~11자리)</div>
           </div>
+
           <button type="submit" class="primary-button">가입하기</button>
+
           <div class="login-actions">
             <button type="button" class="pill-button outline" data-action="show-login">로그인</button>
           </div>
@@ -470,56 +445,87 @@
         if (signupPanel) signupPanel.hidden = false;
       };
 
-      if (toSignup) {
-        toSignup.addEventListener("click", (event) => {
-          event.preventDefault();
-          showSignup();
-        });
-      }
-
-      if (toLogin) {
-        toLogin.addEventListener("click", (event) => {
-          event.preventDefault();
-          showLogin();
-        });
-      }
-
+      if (toSignup) toSignup.addEventListener("click", (e) => { e.preventDefault(); showSignup(); });
+      if (toLogin) toLogin.addEventListener("click", (e) => { e.preventDefault(); showLogin(); });
       showLogin();
 
-      const yearSelect = shell.querySelector("select[name='birthYear']");
-      const monthSelect = shell.querySelector("select[name='birthMonth']");
-      const daySelect = shell.querySelector("select[name='birthDay']");
+      const loginSuccess = new URLSearchParams(window.location.search).has("loginSuccess");
+      if (loginSuccess) {
+        setTimeout(() => {
+          window.location.href = "/owner/main";
+        }, 1200);
+      }
 
-      if (yearSelect) {
-        const currentYear = new Date().getFullYear();
-        for (let i = 0; i < 70; i += 1) {
-          const year = currentYear - i;
-          const option = document.createElement("option");
-          option.value = String(year);
-          option.textContent = String(year);
-          yearSelect.appendChild(option);
+      // 비밀번호 일치 체크
+      const pw = document.getElementById("signup-password");
+      const pw2 = document.getElementById("signup-confirmPassword");
+      const pwMsg = document.getElementById("pw-match-message");
+
+      function setPwMessage(ok, text) {
+        if (!pwMsg) return;
+        pwMsg.classList.add("show");
+        pwMsg.classList.toggle("ok", ok);
+        pwMsg.classList.toggle("bad", !ok);
+        pwMsg.textContent = text;
+      }
+
+      function checkPwMatch() {
+        if (!pw || !pw2 || !pwMsg) return;
+        if (!pw2.value) {
+          pwMsg.classList.remove("show", "ok", "bad");
+          pwMsg.textContent = "";
+          return;
+        }
+        setPwMessage(pw.value === pw2.value, pw.value === pw2.value ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다.");
+      }
+
+      if (pw) pw.addEventListener("input", checkPwMatch);
+      if (pw2) pw2.addEventListener("input", checkPwMatch);
+
+      // 이메일 중복 확인: GET /api/v1/store-owner/auth/exists/email?email=...
+      const emailInput = document.getElementById("signup-email");
+      const btnCheckEmail = document.getElementById("btn-check-email");
+      const emailMsg = document.getElementById("email-check-message");
+
+      function setEmailMessage(ok, text) {
+        if (!emailMsg) return;
+        emailMsg.classList.add("show");
+        emailMsg.classList.toggle("ok", ok);
+        emailMsg.classList.toggle("bad", !ok);
+        emailMsg.textContent = text;
+      }
+
+      async function checkEmailDuplicate() {
+        const email = (emailInput?.value || "").trim();
+        if (!email) { setEmailMessage(false, "이메일을 먼저 입력하세요."); return; }
+
+        try {
+          const res = await fetch(`/api/v1/store-owner/auth/exists/email?email=${encodeURIComponent(email)}`, {
+            method: "GET",
+            headers: { "Accept": "application/json" }
+          });
+          const text = await res.text();
+          const exists = String(text).trim() === "true";
+          setEmailMessage(!exists, exists ? "이미 사용 중인 이메일입니다." : "사용 가능한 이메일입니다.");
+        } catch (e) {
+          setEmailMessage(false, "중복 확인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
         }
       }
 
-      if (monthSelect) {
-        for (let month = 1; month <= 12; month += 1) {
-          const option = document.createElement("option");
-          option.value = String(month);
-          option.textContent = String(month);
-          monthSelect.appendChild(option);
-        }
-      }
+      if (btnCheckEmail) btnCheckEmail.addEventListener("click", (e) => { e.preventDefault(); checkEmailDuplicate(); });
 
-      if (daySelect) {
-        for (let day = 1; day <= 31; day += 1) {
-          const option = document.createElement("option");
-          option.value = String(day);
-          option.textContent = String(day);
-          daySelect.appendChild(option);
-        }
+      // 제출 전 최소 검증(비번 일치)
+      const signupForm = document.getElementById("owner-signup-form");
+      if (signupForm) {
+        signupForm.addEventListener("submit", (e) => {
+          if (pw && pw2 && pw.value !== pw2.value) {
+            e.preventDefault();
+            setPwMessage(false, "비밀번호가 일치하지 않습니다.");
+            pw2.focus();
+          }
+        });
       }
     })();
   </script>
 </body>
 </html>
-

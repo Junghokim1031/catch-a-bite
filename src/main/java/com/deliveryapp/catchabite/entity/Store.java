@@ -63,6 +63,9 @@ public class Store {
     @Column(name = "STORE_RECENT_ORDER")
     private Integer storeRecentOrder;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "STORE_OWNER_ID", nullable = false)
+    private StoreOwner storeOwner;
   
     // 영업 상태
     // OPEN / CLOSE

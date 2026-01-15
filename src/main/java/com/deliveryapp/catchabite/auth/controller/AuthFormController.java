@@ -1,19 +1,24 @@
 package com.deliveryapp.catchabite.auth.controller;
 
+import com.deliveryapp.catchabite.auth.AuthSessionKeys;
 import com.deliveryapp.catchabite.auth.api.dto.LoginRequest;
+import com.deliveryapp.catchabite.auth.api.dto.LoginResponse;
 import com.deliveryapp.catchabite.auth.api.dto.SignUpRequest;
 import com.deliveryapp.catchabite.auth.application.AuthService;
 import com.deliveryapp.catchabite.domain.enumtype.DelivererVehicleType;
 import com.deliveryapp.catchabite.domain.enumtype.YesNo;
 import com.deliveryapp.catchabite.entity.Deliverer;
+import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreOwner;
 import com.deliveryapp.catchabite.repository.DelivererRepository;
+import com.deliveryapp.catchabite.repository.StoreRepository;
 import com.deliveryapp.catchabite.repository.StoreOwnerRepository;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +33,7 @@ public class AuthFormController {
 
     private final AuthService authService;
     private final StoreOwnerRepository storeOwnerRepository;
+    private final StoreRepository storeRepository;
     private final DelivererRepository delivererRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -35,11 +41,13 @@ public class AuthFormController {
     public AuthFormController(
         AuthService authService,
         StoreOwnerRepository storeOwnerRepository,
+        StoreRepository storeRepository,
         DelivererRepository delivererRepository,
         PasswordEncoder passwordEncoder
     ) {
         this.authService = authService;
         this.storeOwnerRepository = storeOwnerRepository;
+        this.storeRepository = storeRepository;
         this.delivererRepository = delivererRepository;
         this.passwordEncoder = passwordEncoder;
     }
@@ -60,13 +68,14 @@ public class AuthFormController {
 
     // 사용자 로그인 폼 처리
     @PostMapping("/user/login")
-    public String userLogin(@Valid LoginRequest request, BindingResult bindingResult) {
+    public String userLogin(@Valid LoginRequest request, BindingResult bindingResult, HttpSession session) {
         if (bindingResult.hasErrors()) {
             return "redirect:/auth/user/signup?error";
         }
         try {
-            authService.login(request);
-            return "redirect:/user/main";
+            LoginResponse loginResponse = authService.login(request);
+            session.setAttribute(AuthSessionKeys.LOGIN_USER_ID, loginResponse.accountId());
+            return "redirect:/auth/user/signup?loginSuccess";
         } catch (RuntimeException ex) {
             return "redirect:/auth/user/signup?error";
         }
@@ -74,49 +83,65 @@ public class AuthFormController {
 
     // 사장 회원가입 폼 처리
     @PostMapping("/owner/signup")
+    @Transactional
     public String ownerSignup(
-        @RequestParam String loginId,
+        @RequestParam String email,
         @RequestParam String password,
-        @RequestParam String confirmPassword,
         @RequestParam String name,
-        @RequestParam String mobile
+        @RequestParam String mobile,
+        @RequestParam String businessRegistrationNo,
+        @RequestParam String storeName,
+        @RequestParam String storeAddress
     ) {
-        if (isBlank(loginId) || isBlank(password) || isBlank(confirmPassword)
-            || isBlank(name) || isBlank(mobile)) {
+        if (isBlank(email) || isBlank(password) || isBlank(name)
+            || isBlank(mobile) || isBlank(businessRegistrationNo)
+            || isBlank(storeName) || isBlank(storeAddress)) {
             return "redirect:/auth/owner/signup?error";
         }
-        if (!password.equals(confirmPassword)) {
-            return "redirect:/auth/owner/signup?error";
-        }
-        if (storeOwnerRepository.existsByStoreOwnerEmail(loginId)
-            || storeOwnerRepository.existsByStoreOwnerMobile(mobile)) {
+        if (storeOwnerRepository.existsByStoreOwnerEmail(email)
+            || storeOwnerRepository.existsByStoreOwnerMobile(mobile)
+            || storeOwnerRepository.existsByStoreOwnerBusinessRegistrationNo(businessRegistrationNo)) {
             return "redirect:/auth/owner/signup?error";
         }
 
-        StoreOwner owner = StoreOwner.builder()
-            .storeOwnerEmail(loginId)
+        StoreOwner owner = storeOwnerRepository.save(StoreOwner.builder()
+            .storeOwnerEmail(email)
             .storeOwnerPassword(passwordEncoder.encode(password))
             .storeOwnerName(name)
             .storeOwnerMobile(mobile)
+            .storeOwnerBusinessRegistrationNo(businessRegistrationNo)
+            .build());
+
+        Store store = Store.builder()
+            .storeOwner(owner)
+            .storeOwnerName(name)
+            .storeName(storeName)
+            .storeAddress(storeAddress)
+            .storeCategory("UNASSIGNED")
+            .storePhone(normalizeStorePhone(mobile))
             .build();
 
-        storeOwnerRepository.save(owner);
+        storeRepository.save(store);
         return "redirect:/auth/owner/signup?signup";
     }
 
     // 사장 로그인 폼 처리
     @PostMapping("/owner/login")
     public String ownerLogin(
-        @RequestParam String loginKey,
-        @RequestParam String password
+        @RequestParam String email,
+        @RequestParam String password,
+        HttpSession session
     ) {
-        if (isBlank(loginKey) || isBlank(password)) {
+        if (isBlank(email) || isBlank(password)) {
             return "redirect:/auth/owner/signup?error";
         }
-        return storeOwnerRepository.findByStoreOwnerEmail(loginKey)
-            .filter(owner -> passwordEncoder.matches(password, owner.getStoreOwnerPassword()))
-            .map(owner -> "redirect:/owner/main")
-            .orElse("redirect:/auth/owner/signup?error");
+        StoreOwner owner = storeOwnerRepository.findByStoreOwnerEmail(email).orElse(null);
+        if (owner == null || !passwordEncoder.matches(password, owner.getStoreOwnerPassword())) {
+            return "redirect:/auth/owner/signup?error";
+        }
+
+        session.setAttribute(AuthSessionKeys.LOGIN_OWNER_ID, owner.getStoreOwnerId());
+        return "redirect:/auth/owner/signup?loginSuccess";
     }
 
     // 라이더 회원가입 폼 처리
@@ -186,18 +211,32 @@ public String riderSignup(
             return "redirect:/auth/rider/signup?error";
         }
 
-        return delivererRepository.findByDelivererEmail(loginKey)
-            .filter(d -> passwordEncoder.matches(password, d.getDelivererPassword()))
-            .map(d -> {
-                session.setAttribute("LOGIN_RIDER_ID", d.getDelivererId()); // ✅ 세션 저장
-                return "redirect:/rider/main";
-            })
-            .orElse("redirect:/auth/rider/signup?error");
+        Deliverer rider = delivererRepository.findByDelivererEmail(loginKey).orElse(null);
+        if (rider == null || !passwordEncoder.matches(password, rider.getDelivererPassword())) {
+            return "redirect:/auth/rider/signup?error";
+        }
+
+        session.setAttribute(AuthSessionKeys.LOGIN_RIDER_ID, rider.getDelivererId());
+        return "redirect:/auth/rider/signup?loginSuccess";
     }
 
     // 공백/널 입력값 방어용 체크
     private boolean isBlank(String value) {
         return value == null || value.isBlank();
+    }
+
+    private String normalizeStorePhone(String mobile) {
+        if (mobile == null) {
+            return "0000000000";
+        }
+        String digits = mobile.replaceAll("\\D", "");
+        if (digits.length() == 11) {
+            return digits.substring(1);
+        }
+        if (digits.length() >= 10) {
+            return digits.substring(digits.length() - 10);
+        }
+        return String.format("%-10s", digits).replace(' ', '0');
     }
 
     // 라이더 이동수단 타입 파싱 (미입력 시 WALKING 기본값)

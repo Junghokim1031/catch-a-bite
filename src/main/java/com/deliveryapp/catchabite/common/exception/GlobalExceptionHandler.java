@@ -1,34 +1,73 @@
 package com.deliveryapp.catchabite.common.exception;
 
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.deliveryapp.catchabite.common.response.ApiResponse;
-
 /**
- * ✅ API(/api/**) 요청에서만 JSON 에러 응답을 만든다.
- * ✅ 페이지(Thymeleaf) 요청은 예외를 다시 던져서 Spring MVC 기본 에러 처리로 넘긴다.
+ * API(/api/**) exceptions return JSON responses.
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleException(Exception e, HttpServletRequest request) throws Exception {
-
-        String uri = request.getRequestURI();
-
-        // ✅ /api/** 가 아니면 "처리하지 않는다" → 페이지는 HTML 렌더링/에러페이지로 간다.
-        if (uri == null || !uri.startsWith("/api/")) {
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidCredentials(
+        InvalidCredentialsException e,
+        HttpServletRequest request
+    ) throws Exception {
+        if (!isApiRequest(request)) {
             throw e;
         }
 
-        // ✅ /api/** 인 경우에만 JSON으로 통일
+        return ResponseEntity
+            .status(HttpStatus.UNAUTHORIZED)
+            .body(ApiResponse.fail("INVALID_CREDENTIALS", resolveMessage(e, "Invalid credentials.")));
+    }
+
+    @ExceptionHandler({
+        IllegalArgumentException.class,
+        MethodArgumentNotValidException.class,
+        BindException.class,
+        ConstraintViolationException.class,
+        MissingServletRequestParameterException.class,
+        HttpMessageNotReadableException.class
+    })
+    public ResponseEntity<ApiResponse<Void>> handleBadRequest(Exception e, HttpServletRequest request) throws Exception {
+        if (!isApiRequest(request)) {
+            throw e;
+        }
+
+        return ResponseEntity
+            .status(HttpStatus.BAD_REQUEST)
+            .body(ApiResponse.fail("BAD_REQUEST", resolveMessage(e, "Bad request")));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiResponse<Void>> handleException(Exception e, HttpServletRequest request) throws Exception {
+        if (!isApiRequest(request)) {
+            throw e;
+        }
+
         return ResponseEntity
             .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ApiResponse.fail("INTERNAL_ERROR",
-                (e.getMessage() == null || e.getMessage().isBlank()) ? "Internal error" : e.getMessage()));
+            .body(ApiResponse.fail("INTERNAL_ERROR", resolveMessage(e, "Internal error")));
+    }
+
+    private boolean isApiRequest(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        return uri != null && uri.startsWith("/api/");
+    }
+
+    private String resolveMessage(Exception e, String fallback) {
+        String message = e.getMessage();
+        return (message == null || message.isBlank()) ? fallback : message;
     }
 }
