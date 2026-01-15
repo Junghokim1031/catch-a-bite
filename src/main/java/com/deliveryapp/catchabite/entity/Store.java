@@ -9,104 +9,87 @@ import java.util.List;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 
 @Entity
-@Table(name = "STORE")
+@Table(name = "store")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString(exclude = {
-        "images", "menuCategories", "menus"
+        "storeOwner", "images", "menuCategories", "menus"
 })
 public class Store {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "STORE_ID")
+    @Column(name = "store_id")
     private Long storeId;
 
-    @Column(name = "STORE_OWNER_NAME", nullable = false, length = 100)
+    @Column(name = "store_owner_name", nullable = false, length = 100)
     private String storeOwnerName;
 
-    @Column(name = "STORE_NAME", nullable = false, length = 100)
+    @Column(name = "store_name", nullable = false, length = 100)
     private String storeName;
 
-    @Column(name = "STORE_ADDRESS", nullable = false, length = 400)
+    @Column(name = "store_address", nullable = false, length = 400)
     private String storeAddress;
 
-    @Column(name = "STORE_CATEGORY", nullable = false, length = 50)
+    @Column(name = "store_category", nullable = false, length = 50)
     private String storeCategory;
 
-    @Column(name = "STORE_PHONE", nullable = false, length = 10)
+    @Column(name = "store_phone", nullable = false, length = 10)
     private String storePhone;
 
-    @Column(name = "STORE_MIN_ORDER")
+    @Column(name = "store_min_order")
     private Integer storeMinOrder;
 
-    @Column(name = "STORE_MAX_DIST")
+    @Column(name = "store_max_dist")
     private Integer storeMaxDist;
 
-    @Column(name = "STORE_DELIVERY_FEE")
+    @Column(name = "store_delivery_fee")
     private Integer storeDeliveryFee;
 
-    @Column(name = "STORE_OPEN_TIME")
+    @Column(name = "store_open_time")
     private Integer storeOpenTime;
 
-    @Column(name = "STORE_CLOSE_TIME")
+    @Column(name = "store_close_time")
     private Integer storeCloseTime;
 
-    @Column(name = "STORE_RATING")
+    @Column(name = "store_rating")
     private Double storeRating;
 
-    @Column(name = "STORE_TOTAL_ORDER")
+    @Column(name = "store_total_order")
     private Integer storeTotalOrder;
 
-    @Column(name = "STORE_RECENT_ORDER")
+    @Column(name = "store_recent_order")
     private Integer storeRecentOrder;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "STORE_OWNER_ID", nullable = false)
-    private StoreOwner storeOwner;
-  
-    // 영업 상태
-    // OPEN / CLOSE
-    
+    // 영업 상태 (OPEN / CLOSE)
     @Enumerated(EnumType.STRING)
-    @Column(name = "STORE_OPEN_STATUS", length = 10)
+    @Column(name = "store_open_status", length = 10)
     private StoreOpenStatus storeOpenStatus;
 
-    @Column(name = "STORE_INTRO", length = 4000)
+    @Column(name = "store_intro", length = 4000)
     private String storeIntro;
 
-  
-    // 비즈니스 메서드
-     
-   
-    // 가게 기본 정보 변경
-     
-    public void changeInfo(String name, String phone) {
-        this.storeName = name;
-        this.storePhone = phone;
-    }
-
+    /* =========================
+       비즈니스 메서드
+       ========================= */
 
     // 가게 영업 상태 변경
-
     public void changeStatus(StoreOpenStatus status) {
         this.storeOpenStatus = status;
     }
 
-    // DTO 기준 가게 정보 수정
-    public void update(com.deliveryapp.catchabite.dto.StoreUpdateRequestDto dto) {
-        this.storeName = dto.getStoreName();
-        this.storePhone = dto.getStorePhone();
-        this.storeIntro = dto.getStoreIntro();
+    // 가게 기본 정보 변경
+    public void changeBasicInfo(String storeName, String storePhone, String storeIntro){
+        this.storeName = storeName;
+        this.storePhone = storePhone;
+        this.storeIntro = storeIntro;
     }
 
-    
-
-  
-    // 연관관계
-     
+    /* =========================
+       연관관계
+       ========================= */
 
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     @Builder.Default
@@ -119,4 +102,9 @@ public class Store {
     @OneToMany(mappedBy = "store", fetch = FetchType.LAZY)
     @Builder.Default
     private List<Menu> menus = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_owner_id", nullable = true)
+    private StoreOwner storeOwner;
+
 }

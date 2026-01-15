@@ -25,4 +25,11 @@ public class MenuOption {
 
     @Column(name = "menu_option_price")
     private Integer menuOptionPrice;
+
+    public void changeInfo(String name, Integer price) {
+        this.menuOptionName = name;
+        this.menuOptionPrice = price;
+    }
+
+
 }

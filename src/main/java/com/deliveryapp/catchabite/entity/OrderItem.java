@@ -44,7 +44,7 @@ public class OrderItem {
     private String orderItemName;
 
     // ERD: ORDER_ITEM_PRICE (NN)
-    @Column(name = "order_item_price", nullable = false, precision = 19, scale = 2)
+    @Column(name = "order_item_price", nullable = false)
     private Long orderItemPrice;
 
     // ERD: ORDER_ITEM_QUANTITY (NN)
