@@ -87,6 +87,15 @@ public class Store {
         this.storeIntro = storeIntro;
     }
 
+    // 가게 기본 정보 "전체" 변경 (PUT용)
+    public void changeStoreInfo(String storeName, String storePhone, String storeAddress, String storeCategory, String storeIntro) {
+        this.storeName = storeName;
+        this.storePhone = storePhone;
+        this.storeAddress = storeAddress;
+        this.storeCategory = storeCategory;
+        this.storeIntro = storeIntro;
+    }
+
     /* =========================
        연관관계
        ========================= */

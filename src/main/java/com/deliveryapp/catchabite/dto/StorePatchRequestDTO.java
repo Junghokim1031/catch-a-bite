@@ -1,42 +1,30 @@
 package com.deliveryapp.catchabite.dto;
 
-import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+/**
+ * 매장 기본정보 부분 수정(PATCH) 요청 DTO
+ * - null인 필드는 변경하지 않습니다.
+ * - NotBlank 같은 "필수" 제약은 걸지 않습니다.
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class StoreDTO {
+public class StorePatchRequestDTO {
 
-	private Long storeId;
-
-	@NotBlank(message = "storeName is required")
 	@Size(max = 100, message = "storeName is too long")
 	private String storeName;
 
-	@NotBlank(message = "storePhone is required")
 	@Size(max = 10, message = "storePhone is too long")
 	private String storePhone;
 
-	@NotBlank(message = "storeAddress is required")
 	@Size(max = 400, message = "storeAddress is too long")
 	private String storeAddress;
 
-	@NotBlank(message = "storeCategory is required")
 	@Size(max = 50, message = "storeCategory is too long")
 	private String storeCategory;
-
-	private Integer storeMinOrder;
-	private Integer storeMaxDist;
-	private Integer storeDeliveryFee;
-
-	private Integer storeOpenTime;
-	private Integer storeCloseTime;
-
-	private StoreOpenStatus storeOpenStatus;
 
 	@Size(max = 4000, message = "storeIntro is too long")
 	private String storeIntro;
