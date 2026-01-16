@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 
 @Entity
-@Table(name = "PAYMENT")
+@Table(name = "payment")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,23 +16,23 @@ import java.time.LocalDateTime;
 @ToString
 public class Payment {
     @Id
-    @Column(name = "PAYMENT_ID")
+    @Column(name = "payment_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long paymentId;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name="ORDER_ID", nullable = false)
+    @JoinColumn(name="order_id", nullable = false)
     private StoreOrder storeOrder;
 
-    @Column(name = "PAYMENT_METHOD", nullable = false, length = 100)
+    @Column(name = "payment_method", nullable = false, length = 100)
     private String paymentMethod;
 
-    @Column(name = "PAYMENT_AMOUNT", nullable = false)
+    @Column(name = "payment_amount", nullable = false)
     private Long paymentAmount;
 
-    @Column(name = "PAYMENT_STATUS", nullable = false, length = 50)
+    @Column(name = "payment_status", nullable = false, length = 50)
     private String paymentStatus;
 
-    @Column(name = "PAYMENT_PAID_AT", nullable = false)
+    @Column(name = "payment_paid_at", nullable = false)
     private LocalDateTime paymentPaidAt;
 }

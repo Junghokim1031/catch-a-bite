@@ -5,6 +5,7 @@ public enum OrderStatus {
     PENDING("pending"),
     COOKING("cooking"),
     COOKED("cooked"),
+    PAYMENTCONFIRMED("payment_confirmed"),
     DELIVERED("delivered"),
     REJECTED("rejected");
 

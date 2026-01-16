@@ -12,4 +12,6 @@ public interface StoreOwnerRepository extends JpaRepository<StoreOwner, Long> {
     boolean existsByStoreOwnerEmail(String storeOwnerEmail);
 
     boolean existsByStoreOwnerMobile(String storeOwnerMobile);
+
+    boolean existsByStoreOwnerBusinessRegistrationNo(String businessRegistrationNo); //메서드 추가
 }

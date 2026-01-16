@@ -56,8 +56,8 @@ public class StoreOrder {
     @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     private Payment payment;
 
-    // @O;neToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
-    // private Review review
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
+    private Review review;
 
     @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
     private OrderDelivery orderDelivery;

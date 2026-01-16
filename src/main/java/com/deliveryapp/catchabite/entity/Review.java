@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * @Builder만 사용함으로 null이 발생하는 것을 방지하고자 합니다.
  */
 @Entity
-@Table(name = "REVIEW")
+@Table(name = "review")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,29 +19,29 @@ import java.time.LocalDateTime;
 public class Review {
 
     @Id
-    @Column(name = "REVIEW_ID")
+    @Column(name = "review_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reviewId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ORDER_ID", nullable = false)
+    @JoinColumn(name="order_id", nullable = false)
     private StoreOrder storeOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="APP_USER_ID", nullable = false)
+    @JoinColumn(name="app_user_id", nullable = false)
     private AppUser appUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="STORE_ID", nullable = false)
+    @JoinColumn(name="store_id", nullable = false)
     private Store store;
 
-    @Column(name="REVIEW_RATING", nullable = false)
+    @Column(name="review_rating", nullable = false)
     private BigDecimal reviewRating;
 
-    @Column(name="REVIEW_CONTENT", length = 1000)
+    @Column(name="review_content", length = 1000)
     private String reviewContent;
 
-    @Column(name="REVIEW_CREATED_AT", nullable = false)
+    @Column(name="review_created_at", nullable = false)
     private LocalDateTime reviewCreatedAt;
 
     /**
@@ -54,5 +54,13 @@ public class Review {
         {
             reviewCreatedAt = LocalDateTime.now();
         }
+    }
+
+    public void setReviewRating(BigDecimal reviewRating){
+        this.reviewRating = reviewRating;
+    }
+
+    public void setReviewContent(String reviewContent){
+        this.reviewContent = reviewContent;
     }
 }

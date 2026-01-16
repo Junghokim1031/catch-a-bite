@@ -11,6 +11,8 @@ import java.util.Optional;
 
 public interface StoreOrderRepository extends JpaRepository<StoreOrder, Long> {
 
+    Optional<StoreOrder> findByOrderId(Long orderId);
+
     Optional<StoreOrder> findByOrderIdAndStore_StoreId(Long orderId, Long storeId);
 
     List<StoreOrder> findAllByStore_StoreIdOrderByOrderDateDesc(Long storeId);

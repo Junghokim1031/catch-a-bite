@@ -2,6 +2,7 @@ package com.deliveryapp.catchabite.payment.service;
 
 import com.deliveryapp.catchabite.common.constant.PaymentConstant;
 import com.deliveryapp.catchabite.common.exception.PaymentException;
+import com.deliveryapp.catchabite.domain.enumtype.OrderStatus;
 import com.deliveryapp.catchabite.entity.Payment;
 import com.deliveryapp.catchabite.entity.StoreOrder;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentVerificationDTO;
@@ -182,6 +183,11 @@ public class PaymentVerificationService {
             
             // merchantUid 형식: "ORDER_" + orderId + "_" + timestamp
             Long orderId = extractOrderIdFromMerchantUid(merchantUid);
+
+            if(orderId == null){
+                throw new IllegalArgumentException("PaymentVerification - verifyAndCompletePayment OrderId " + orderId +"가 null입니다");
+            }
+
             log.info("  - 추출된 Order ID: {}", orderId);
             
             StoreOrder order = storeOrderRepository.findById(orderId)
@@ -314,7 +320,7 @@ public class PaymentVerificationService {
             // ========== Step 9: StoreOrder 상태 업데이트 ==========
             log.info("Step 9: StoreOrder 상태 업데이트 중...");
             
-            order.setOrderStatus(PaymentConstant.ORDER_STATUS_CONFIRMED);
+            order.changeStatus(OrderStatus.PAYMENTCONFIRMED);
             storeOrderRepository.save(order);
             log.info("Order 저장 완료:");
             log.info("  - order_id: {}", order.getOrderId());
