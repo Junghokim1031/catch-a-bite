@@ -58,4 +58,23 @@ public class Address {
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL)
     @Builder.Default
     private List<StoreOrder> orders = new ArrayList<>();
+
+    public void updateInfo(String addressDetail, String addressNickname, String addressEntranceMethod, String addressIsDefault) {
+        if(addressDetail != null){
+            this.addressDetail = addressDetail;
+        }
+        if(addressNickname != null){
+            this.addressNickname = addressNickname;
+        }
+        if(addressEntranceMethod != null){
+            this.addressEntranceMethod = addressEntranceMethod;
+        }
+        if(addressIsDefault != null){
+            this.addressIsDefault = addressIsDefault;
+        }
+    }
+
+    public void deleteAddress(){
+        this.addressVisible = "N";
+    }
 }

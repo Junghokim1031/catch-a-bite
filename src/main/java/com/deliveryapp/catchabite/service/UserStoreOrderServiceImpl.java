@@ -39,6 +39,11 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
         // 이외 정보는 프론트엔드에서 StoreOrderDTO 형식으로 받음.
         // =====================================================================
 
+        
+        log.info("=============================================");
+        log.info(dto.nullFieldsReport());
+        log.info("=============================================");
+
         AppUser appUser = appUserRepository.findById(dto.getAppUserId())
             .orElseThrow(() -> new IllegalArgumentException("StoreOrderService - appUser " + dto.getAppUserId() + "가 없음."));
         Store store = storeRepository.findById(dto.getStoreId())

@@ -4,11 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CatchABite Payment - PortOne V2 KG Inicis</title>
-    <!-- PortOne V2 SDK -->
     <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
-    <script>
-        console.log('IMP loaded?', window.IMP);
-    </script>
     <style>
         * {
             margin: 0;
@@ -343,7 +339,6 @@
         </div>
 
         <form id="paymentForm">
-            <!-- Step 1: Order ID 입력 -->
             <div class="form-row">
                 <div class="form-group">
                     <label>Order ID</label>
@@ -351,7 +346,6 @@
                 </div>
             </div>
 
-            <!-- Step 2: 로드된 주문 정보 표시 -->
             <div class="order-section" id="orderSection" style="display: none;">
                 <h3>주문</h3>
                 
@@ -375,7 +369,6 @@
                 </div>
             </div>
 
-            <!-- Step 3: 결제 수단 선택 -->
             <div class="payment-method-group" id="paymentMethodGroup" style="display: none;">
                 <h4>💳 결제 수단 선택</h4>
                 <div class="payment-options">
@@ -390,7 +383,6 @@
                 </div>
             </div>
 
-            <!-- Step 4: 버튼 그룹 -->
             <div class="button-group">
                 <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
                 <button type="button" class="btn-primary" onclick="proceedToPayment()" id="proceedBtn" disabled>
@@ -398,19 +390,16 @@
                 </button>
             </div>
 
-            <!-- 안내 메시지 -->
             <div class="info-message" id="infoMessage" style="display: none; margin-top: 20px;">
                 ⚠️ PortOne KG Inicis 결제 창이 열립니다. 카드 정보를 입력해주세요.
             </div>
         </form>
 
-        <!-- 로딩 표시기 -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Processing payment...</p>
         </div>
 
-        <!-- 결과 표시 -->
         <div class="result" id="result"></div>
     </div>
 
@@ -420,33 +409,26 @@
          * Payment Test Page (PortOne V2)
          * PortOne V2 SDK - KG Inicis
          * =============================
-         * 
-         * V2 변경사항:
-         * - payment_id (numeric Long) 사용
-         * - imp_uid 대신 payment_id를 Backend에 전송
-         * - /api/payments/complete?paymentId=...&merchantUid=...
          */
 
         let orderData = {};
 
         /**
          * Backend에서 Store ID 로드
+         * [FIX] Map response handling
          */
         async function loadStoreId() {
             try {
                 console.log('📱 Loading Store ID from backend...');
                 const response = await fetch('/api/config/store-id');
                 
-                if (!response.ok) {
-                    throw new Error(`Store ID 로드 실패: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Store ID load failed: ${response.status}`);
                 
-                const data = await response.json();
-                const storeId = data.storeId || data.store_id;
+                // [FIX] Raw Map response { "storeId": "..." }
+                const data = await response.json(); 
+                const storeId = data.storeId;
                 
-                if (!storeId) {
-                    throw new Error('Response에 Store ID가 없습니다');
-                }
+                if (!storeId) throw new Error('Store ID not found in response');
                 
                 let hiddenInput = document.getElementById('storeId');
                 if (!hiddenInput) {
@@ -459,46 +441,47 @@
                 
                 console.log('Store ID loaded:', storeId);
                 return storeId;
-                
             } catch (error) {
-                console.error('Store ID 로드 실패:', error.message);
-                showError('Store ID Load Failed', error.message);
+                console.error('Store ID error:', error);
+                showError('Config Error', error.message);
                 return null;
             }
         }
 
         /**
          * Backend에서 주문 정보 로드
+         * [FIX] ApiResponse wrapper & Field names
          */
         async function fetchOrderData() {
             const orderId = document.getElementById('orderId').value;
-
-            if (!orderId) {
-                alert('Please enter an Order ID');
-                return;
-            }
+            if (!orderId) return;
 
             showLoading(true);
             clearResult();
 
             try {
-                console.log('주문내역 Order_Id: ', orderId);
+                const response = await fetch(`/api/v1/appuser/orders/${orderId}`);
+                if (!response.ok) throw new Error(`Failed to fetch order: ${response.status}`);
                 
-                const response = await fetch(`/api/orders/${orderId}`);
-                
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch order: ${response.status}`);
+                // [FIX] ApiResponse wrapper handling
+                const responseWrapper = await response.json(); 
+                if (!responseWrapper.success) {
+                    throw new Error(responseWrapper.message || 'Failed to retrieve order');
                 }
-                
-                const data = await response.json();
-                orderData = data;
+
+                // [FIX] Unwrap to get actual DTO
+                const data = responseWrapper.data; 
+                orderData = data; 
                 
                 console.log('Order data loaded:', data);
 
-                const appUserId = data.appUserId || data.app_user_id || 'N/A';
-                const amount = data.totalPrice || data.total_price || 0;
-                const buyerName = data.userName || data.user_name || 'N/A';
-                const buyerEmail = data.userEmail || data.user_email || 'N/A';
+                // [FIX] Use correct DTO field names (orderTotalPrice instead of totalPrice)
+                const appUserId = data.appUserId || 'N/A';
+                const amount = data.orderTotalPrice || 0; 
+
+                // [FIX] Defaults for fields missing in StoreOrderDTO
+                const buyerName = data.userName || `User ${appUserId}`;
+                const buyerEmail = data.userEmail || 'test@catchabite.com';
 
                 document.getElementById('displayAppUserId').textContent = appUserId;
                 document.getElementById('displayAmount').textContent = `₩${parseInt(amount).toLocaleString()}`;
@@ -511,22 +494,10 @@
                 document.getElementById('infoMessage').style.display = 'block';
 
                 showLoading(false);
-                showSuccess('Order Loaded Successfully!', {
-                    appUserId,
-                    amount,
-                    buyerName,
-                    buyerEmail
-                });
-
             } catch (error) {
                 showLoading(false);
-                showError('Failed to Load Order', error.message);
+                showError('Order Error', error.message);
                 console.error('Error fetching order:', error);
-                
-                document.getElementById('orderSection').style.display = 'none';
-                document.getElementById('paymentMethodGroup').style.display = 'none';
-                document.getElementById('proceedBtn').disabled = true;
-                document.getElementById('infoMessage').style.display = 'none';
             }
         }
 
@@ -535,16 +506,21 @@
          */
         async function proceedToPayment() {
             const orderId = document.getElementById('orderId').value;
-            const amount = orderData.totalPrice || orderData.total_price || 0;
-            const buyerName = orderData.userName || orderData.user_name || 'N/A';
-            const buyerEmail = orderData.userEmail || orderData.user_email || 'N/A';
-            const buyerTel = orderData.userPhone || orderData.user_phone || 'N/A';
-            const buyerAddr = orderData.address || orderData.delivery_address || 'N/A';
+            // [FIX] Use corrected field name
+            const amount = orderData.orderTotalPrice || 0; 
+            const appUserId = orderData.appUserId;
+
+            // [FIX] Defaults for missing fields
+            const buyerName = orderData.userName || `User ${appUserId}`;
+            const buyerEmail = orderData.userEmail || 'test@catchabite.com';
+            const buyerTel = orderData.userPhone || '010-0000-0000';
+            const buyerAddr = orderData.orderAddressSnapshot || 'Seoul, Korea';
+            
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
             const storeId = document.getElementById('storeId')?.value;
 
             if (!orderId || !amount) {
-                alert('Order information is required');
+                alert('Order information is required (Amount is 0?)');
                 return;
             }
 
@@ -589,25 +565,33 @@
 
                 // Step 2: PortOne 팝업 열기
                 const cfgResp = await fetch('/api/config/portone');
-                const { storeId, channelKey } = await cfgResp.json();
-                // 40글자 이하 
-                const paymentId = `p${orderId}_${Date.now()}`; // ex: p2_1768442100000 
+                // Config controller returns a raw map
+                const cfgData = await cfgResp.json(); 
+                const channelKey = cfgData.channelKey;
+                
+                const paymentId = `p${orderId}_${Date.now()}`; 
 
                 const paymentResponse = await window.PortOne.requestPayment({
-                storeId,
-                channelKey,
-                paymentId: "paymentId",
-                orderName: `CatchABite Order #${orderId}`,
-                totalAmount: parseInt(amount),
-                currency: "CURRENCY_KRW",
-                payMethod: "CARD",
-                customer: {
-                    fullName: buyerName,
-                    phoneNumber: buyerTel,
-                    email: buyerEmail,
-                },
+                    storeId: storeId,
+                    channelKey: channelKey,
+                    paymentId: paymentId,
+                    orderName: `CatchABite Order #${orderId}`,
+                    totalAmount: parseInt(amount),
+                    currency: "CURRENCY_KRW",
+                    payMethod: "CARD",
+                    customer: {
+                        fullName: buyerName,
+                        phoneNumber: buyerTel,
+                        email: buyerEmail,
+                    },
                 });
+
                 console.log('PortOne V2 response:', paymentResponse);
+                
+                // [FIX] Process the response immediately
+                if (paymentResponse) {
+                    await handlePaymentResponse(paymentResponse, merchantUid);
+                }
 
             } catch (error) {
                 showLoading(false);
@@ -618,24 +602,21 @@
 
         /**
          * PortOne V2 결제 완료 후 처리
-         * 
-         * V2 변경사항:
-         * - rsp.payment_id (numeric) 사용
-         * - imp_uid 대신 payment_id를 Backend에 전송
          */
         async function handlePaymentResponse(rsp, merchantUid) {
-            if (!rsp.success) {
-                showError('Payment Failed', rsp.error_msg || 'Unknown error');
+            // Check for error (V2 often returns code if error, or paymentId if success)
+            if (rsp.code != null) { 
+                showError('Payment Failed', rsp.message || 'Payment failed');
                 console.log('❌ Payment cancelled or failed:', rsp);
                 return;
             }
 
-            // ✅ V2: payment_id (numeric) 사용
-            const paymentId = rsp.payment_id;
-            console.log('✅ PortOne V2 결제 완료! payment_id:', paymentId);
+            // [FIX] V2 returns paymentId (camelCase) usually
+            const paymentId = rsp.paymentId;
+            console.log('✅ PortOne V2 결제 완료! paymentId:', paymentId);
 
             if (!paymentId) {
-                showError('Payment Error', 'payment_id not received from PortOne');
+                showError('Payment Error', 'No paymentId received from PortOne');
                 return;
             }
 
@@ -644,7 +625,6 @@
             try {
                 console.log('🔐 Step 3: Backend에서 결제 검증 (V2)...');
 
-                // ✅ V2: payment_id와 merchant_uid로 검증 요청
                 const completeResponse = await fetch(
                     `/api/payments/complete?paymentId=${paymentId}&merchantUid=${merchantUid}`,
                     { method: 'POST' }
@@ -670,7 +650,6 @@
         /**
          * UI 헬퍼 함수들
          */
-
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
         }

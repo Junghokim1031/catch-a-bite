@@ -243,7 +243,7 @@ public class PaymentController {
     
     @PostMapping("/complete")
     public ResponseEntity<?> completePayment(
-            @RequestParam Long paymentId,
+            @RequestParam String paymentId,
             @RequestParam String merchantUid) {
         
         try {
@@ -322,7 +322,7 @@ public class PaymentController {
                 PaymentCompleteResponseDTO.builder()
                 .success(true)
                 .message("결제가 성공적으로 완료되었습니다.")
-                .paymentId(payment.getPaymentId())
+                .paymentId(payment.getPortOnePaymentId())
                 .orderId(payment.getStoreOrder().getOrderId())
                 .paymentStatus(payment.getPaymentStatus())
                 .paymentAmount(payment.getPaymentAmount())
@@ -480,7 +480,7 @@ public class PaymentController {
                     PaymentCompleteResponseDTO.builder()
                     .success(true)
                     .message("결제 정보를 조회했습니다.")
-                    .paymentId(payment.getPaymentId())
+                    .paymentId(payment.getPortOnePaymentId())
                     .orderId(payment.getStoreOrder().getOrderId())
                     .paymentStatus(payment.getPaymentStatus())
                     .paymentAmount(payment.getPaymentAmount())

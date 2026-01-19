@@ -1,38 +1,54 @@
 package com.deliveryapp.catchabite.controller;
 
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.deliveryapp.catchabite.common.response.ApiResponse;
+import com.deliveryapp.catchabite.dto.StoreOrderDTO;
+import com.deliveryapp.catchabite.service.UserStoreOrderService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import com.deliveryapp.catchabite.entity.StoreOrder;
-import com.deliveryapp.catchabite.repository.StoreOrderRepository;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/appuser/orders")
+@RequiredArgsConstructor
 public class OrderController {
-    
-    @Autowired
-    private StoreOrderRepository storeOrderRepository;
-    
-    @GetMapping("/orders/{orderId}")
-    public ResponseEntity<?> getOrderData(@PathVariable Long orderId) {
-        StoreOrder order = storeOrderRepository.findById(orderId)
-            .orElseThrow(() -> new RuntimeException("Order not found"));
-        
-        return ResponseEntity.ok(Map.of(
-            "orderId", order.getOrderId(),
-            "appUserId", order.getAppUser().getAppUserId(),
-            "userName", order.getAppUser().getAppUserName(),
-            "userEmail", order.getAppUser().getAppUserEmail(),
-            "userPhone", order.getAppUser().getAppUserMobile(),
-            "totalPrice", order.getOrderTotalPrice(),
-            "address", order.getOrderAddressSnapshot(),
-            "status", order.getOrderStatus()
-        ));
+
+    private final UserStoreOrderService userStoreOrderService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<StoreOrderDTO>> createOrder(@RequestBody StoreOrderDTO dto) {
+        StoreOrderDTO createdOrder = userStoreOrderService.createStoreOrder(dto);
+        return ResponseEntity.ok(ApiResponse.ok(createdOrder));
+    }
+
+    @GetMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<StoreOrderDTO>> getOrder(@PathVariable Long orderId) {
+        StoreOrderDTO order = userStoreOrderService.getStoreOrder(orderId);
+        return ResponseEntity.ok(ApiResponse.ok(order));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<StoreOrderDTO>>> getAllOrders() {
+        List<StoreOrderDTO> orders = userStoreOrderService.getAllStoreOrders();
+        return ResponseEntity.ok(ApiResponse.ok(orders));
+    }
+
+    @PutMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<StoreOrderDTO>> updateOrder(@PathVariable Long orderId, @RequestBody StoreOrderDTO dto) {
+        StoreOrderDTO updatedOrder = userStoreOrderService.updateStoreOrder(orderId, dto);
+        return ResponseEntity.ok(ApiResponse.ok(updatedOrder));
+    }
+
+    @DeleteMapping("/{orderId}")
+    public ResponseEntity<ApiResponse<Void>> cancelOrder(@PathVariable Long orderId) {
+        boolean deleted = userStoreOrderService.deleteStoreOrder(orderId);
+        if (deleted) {
+            return ResponseEntity.ok(ApiResponse.okMessage("Order cancelled successfully"));
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.fail("CANCEL_FAILED", "Failed to cancel order"));
+        }
     }
 }

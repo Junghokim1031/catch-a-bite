@@ -16,7 +16,7 @@ package com.deliveryapp.catchabite.common.constant;
 public class PaymentConstant {
     
     // ========== PortOne API 관련 상수 ==========
-    public static final String PORTONE_API_BASE_URL = "https://api.iamport.kr";
+    public static final String PORTONE_API_BASE_URL = "https://api.portone.io";
     public static final String PORTONE_PAYMENT_GET_ENDPOINT = "/payments/{imp_uid}";
     public static final String PORTONE_CANCEL_PAYMENT_ENDPOINT = "/payments/cancel";
     public static final String PORTONE_ACCESS_TOKEN_ENDPOINT = "/users/getToken";
@@ -40,9 +40,9 @@ public class PaymentConstant {
     public static final String PAYMENT_METHOD_VBANK = "vbank";
     
     // ========== 거래 타입 (Transaction Type) ==========
-    public static final String TRANSACTION_TYPE_USER_PAYMENT = "USER_PAYMENT";
-    public static final String TRANSACTION_TYPE_STORE_PAYOUT = "STORE_PAYOUT";
-    public static final String TRANSACTION_TYPE_DELIVERY_PAYOUT = "DELIVERY_PAYOUT";
+    public static final String TRANSACTION_TYPE_USER_PAYMENT = "USERPAYMENT";
+    public static final String TRANSACTION_TYPE_STORE_PAYOUT = "STOREPAYOUT";
+    public static final String TRANSACTION_TYPE_DELIVERY_PAYOUT = "DELIVERYPAYOUT";
     
     // ========== 거래 상태 (Transaction Status) ==========
     public static final String TRANSACTION_STATUS_PENDING = "PENDING";

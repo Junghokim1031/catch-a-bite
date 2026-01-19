@@ -83,4 +83,16 @@ public class AppUser {
     public void changePassword(String encodedPassword) {
         this.appUserPassword = encodedPassword;
     }
+
+    public void updateInfo(String nickname, String email, String mobile) {
+        if(nickname != null){
+            this.appUserNickname = nickname;
+        }
+        if(email != null){
+            this.appUserEmail = email;
+        }
+        if(mobile != null){
+            this.appUserMobile = mobile;
+        }
+    }
 }

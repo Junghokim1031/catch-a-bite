@@ -35,4 +35,7 @@ public class Payment {
 
     @Column(name = "payment_paid_at", nullable = false)
     private LocalDateTime paymentPaidAt;
+
+    @Column(name = "portone_payment_id", unique = true) 
+    private String portOnePaymentId;
 }
