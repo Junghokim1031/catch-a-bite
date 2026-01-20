@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getMe, login } from "../api/authApi";
+import { getMe, login } from "../services/authService";
 import BrandPanel from "../components/BrandPanel.jsx";
 import InlineMessage from "../components/InlineMessage.jsx";
 import TextInput from "../components/TextInput.jsx";

@@ -4,11 +4,16 @@ import {
   checkOwnerBusinessNumberExists,
   checkOwnerEmailExists,
   signupOwner,
-} from "../api/authApi";
+} from "../services/authService";
 import BrandPanel from "../components/BrandPanel.jsx";
 import InlineMessage from "../components/InlineMessage.jsx";
+import PasswordPolicyHint from "../components/PasswordPolicyHint.jsx";
 import TextInput from "../components/TextInput.jsx";
 import styles from "../styles/auth.module.css";
+import {
+  isPasswordPolicyMet,
+  PASSWORD_POLICY_MESSAGE,
+} from "../utils/passwordPolicy";
 
 const initialForm = {
   loginId: "",
@@ -172,6 +177,8 @@ export default function SignupOwnerPage() {
     }
     if (!form.password) {
       nextErrors.password = "비밀번호를 입력해주세요.";
+    } else if (!isPasswordPolicyMet(form.password)) {
+      nextErrors.password = PASSWORD_POLICY_MESSAGE;
     }
     if (!form.passwordConfirm) {
       nextErrors.passwordConfirm = "비밀번호 재확인을 입력해주세요.";
@@ -228,6 +235,7 @@ export default function SignupOwnerPage() {
   const businessTone = errors.businessRegistrationNumber
     ? "error"
     : businessStatus?.tone;
+  const isPasswordValid = isPasswordPolicyMet(form.password);
   const passwordMismatch =
     form.passwordConfirm && form.password !== form.passwordConfirm;
   const passwordConfirmMessage =
@@ -269,6 +277,7 @@ export default function SignupOwnerPage() {
               message={errors.password}
               messageTone="error"
             />
+            <PasswordPolicyHint password={form.password} />
             <TextInput
               label="비밀번호 재확인"
               type="password"
@@ -340,7 +349,7 @@ export default function SignupOwnerPage() {
             <button
               type="submit"
               className={styles.primaryButton}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isPasswordValid}
             >
               회원가입
             </button>

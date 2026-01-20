@@ -278,6 +278,46 @@
   color: #666666;
 }
 
+.passwordPolicy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.passwordPolicyMessage {
+  font-size: 12px;
+  color: #666666;
+}
+
+.passwordPolicyList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 12px;
+  font-size: 12px;
+}
+
+.passwordPolicyItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #8a8a8a;
+}
+
+.passwordPolicyItemOk {
+  color: #2f9e44;
+}
+
+.passwordPolicyIcon {
+  width: 14px;
+  display: inline-flex;
+  justify-content: center;
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .panel {
     grid-template-columns: 1fr;

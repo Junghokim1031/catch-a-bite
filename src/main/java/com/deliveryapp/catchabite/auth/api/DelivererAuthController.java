@@ -5,6 +5,7 @@ import com.deliveryapp.catchabite.auth.api.dto.DelivererSignUpRequest;
 import com.deliveryapp.catchabite.auth.api.dto.ExistsResponse;
 import com.deliveryapp.catchabite.auth.service.DelivererAuthService;
 import com.deliveryapp.catchabite.common.constant.RoleConstant;
+import com.deliveryapp.catchabite.common.util.RoleNormalizer;
 import com.deliveryapp.catchabite.common.exception.InvalidCredentialsException;
 import com.deliveryapp.catchabite.domain.enumtype.DelivererVehicleType;
 import com.deliveryapp.catchabite.domain.enumtype.YesNo;
@@ -98,7 +99,7 @@ public class DelivererAuthController {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
             "RIDER:" + request.email(),
             null,
-            List.of(new SimpleGrantedAuthority(RoleConstant.ROLE_RIDER))
+            List.of(new SimpleGrantedAuthority(RoleNormalizer.normalize(RoleConstant.ROLE_RIDER)))
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         httpRequest.getSession(true);

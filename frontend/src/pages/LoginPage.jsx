@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { login } from "../api/authApi";
+import { login } from "../services/authService";
 import BrandPanel from "../components/BrandPanel.jsx";
 import InlineMessage from "../components/InlineMessage.jsx";
 import TextInput from "../components/TextInput.jsx";

@@ -1,11 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkRiderEmailExists, signupRider } from "../api/authApi";
+import { checkRiderEmailExists, signupRider } from "../services/authService";
 import BrandPanel from "../components/BrandPanel.jsx";
 import InlineMessage from "../components/InlineMessage.jsx";
+import PasswordPolicyHint from "../components/PasswordPolicyHint.jsx";
 import SelectInput from "../components/SelectInput.jsx";
 import TextInput from "../components/TextInput.jsx";
 import styles from "../styles/auth.module.css";
+import {
+  isPasswordPolicyMet,
+  PASSWORD_POLICY_MESSAGE,
+} from "../utils/passwordPolicy";
 
 const initialForm = {
   loginId: "",
@@ -133,6 +138,8 @@ export default function SignupRiderPage() {
     }
     if (!form.password) {
       nextErrors.password = "비밀번호를 입력해주세요.";
+    } else if (!isPasswordPolicyMet(form.password)) {
+      nextErrors.password = PASSWORD_POLICY_MESSAGE;
     }
     if (!form.passwordConfirm) {
       nextErrors.passwordConfirm = "비밀번호 재확인을 입력해주세요.";
@@ -184,6 +191,7 @@ export default function SignupRiderPage() {
 
   const emailMessage = errors.loginId || emailStatus?.message;
   const emailTone = errors.loginId ? "error" : emailStatus?.tone;
+  const isPasswordValid = isPasswordPolicyMet(form.password);
   const passwordMismatch =
     form.passwordConfirm && form.password !== form.passwordConfirm;
   const passwordConfirmMessage =
@@ -225,6 +233,7 @@ export default function SignupRiderPage() {
               message={errors.password}
               messageTone="error"
             />
+            <PasswordPolicyHint password={form.password} />
             <TextInput
               label="비밀번호 재확인"
               type="password"
@@ -286,7 +295,7 @@ export default function SignupRiderPage() {
             <button
               type="submit"
               className={styles.primaryButton}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isPasswordValid}
             >
               회원가입
             </button>

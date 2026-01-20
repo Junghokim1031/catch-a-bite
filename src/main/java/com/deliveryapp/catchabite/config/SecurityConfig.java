@@ -46,9 +46,6 @@ public class SecurityConfig {
                     // Preflight
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                    // 정적/페이지
-                    .requestMatchers("/", "/index.html", "/auth/**").permitAll()
-
                     // 인증 관련
                     .requestMatchers("/api/v1/auth/login").permitAll()
                     .requestMatchers("/api/v1/auth/signup").permitAll()

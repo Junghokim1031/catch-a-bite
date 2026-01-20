@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getMe } from "./api/authApi";
+import { getMe } from "./services/authService";
 import AppRouter from "./routes/AppRouter.jsx";
 import styles from "./styles/auth.module.css";
 

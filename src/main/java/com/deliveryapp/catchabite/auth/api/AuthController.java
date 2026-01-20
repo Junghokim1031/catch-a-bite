@@ -7,6 +7,7 @@ import com.deliveryapp.catchabite.auth.api.dto.MeResponse;
 import com.deliveryapp.catchabite.auth.api.dto.SignUpRequest;
 import com.deliveryapp.catchabite.auth.api.dto.SignUpResponse;
 import com.deliveryapp.catchabite.auth.application.AuthService;
+import com.deliveryapp.catchabite.common.util.RoleNormalizer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -54,7 +55,7 @@ public class AuthController {
             // principal은 "ACCOUNT_TYPE:LOGIN_KEY" 형태로 저장
             accountType + ":" + loginKey,
             null,
-            List.of(new SimpleGrantedAuthority(response.roleName()))
+            List.of(new SimpleGrantedAuthority(RoleNormalizer.normalize(response.roleName())))
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);

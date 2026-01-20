@@ -6,6 +6,7 @@ import com.deliveryapp.catchabite.auth.api.dto.StoreOwnerLoginResponse;
 import com.deliveryapp.catchabite.auth.api.dto.StoreOwnerSignUpRequest;
 import com.deliveryapp.catchabite.auth.service.StoreOwnerAuthService;
 import com.deliveryapp.catchabite.common.constant.RoleConstant;
+import com.deliveryapp.catchabite.common.util.RoleNormalizer;
 import com.deliveryapp.catchabite.common.exception.InvalidCredentialsException;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreOwner;
@@ -116,7 +117,7 @@ public class StoreOwnerAuthController {
         Authentication authentication = new UsernamePasswordAuthenticationToken(
             "OWNER:" + request.email(),
             null,
-            List.of(new SimpleGrantedAuthority(RoleConstant.ROLE_STORE_OWNER))
+            List.of(new SimpleGrantedAuthority(RoleNormalizer.normalize(RoleConstant.ROLE_STORE_OWNER)))
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         httpRequest.getSession(true);

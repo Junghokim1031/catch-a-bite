@@ -1,5 +1,6 @@
 package com.deliveryapp.catchabite.auth.api.dto;
 
+import com.deliveryapp.catchabite.common.constant.PasswordPolicyConstant;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -17,7 +18,10 @@ public record StoreOwnerSignUpRequest(
     String email,
 
     @NotBlank
-    @Size(min = 8, max = 30, message = "비밀번호는 8~30자여야 합니다.")
+    @Pattern(
+        regexp = PasswordPolicyConstant.PASSWORD_REGEX,
+        message = PasswordPolicyConstant.PASSWORD_MESSAGE
+    )
     String password,
 
     @NotBlank
