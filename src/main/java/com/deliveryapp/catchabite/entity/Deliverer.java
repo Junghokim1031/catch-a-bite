@@ -37,6 +37,9 @@ public class Deliverer {
     @Column(name = "deliverer_email", nullable = false, unique = true, length = 255)
     private String delivererEmail; // 로그인 이메일
 
+    @Column(name = "deliverer_mobile", nullable = false, unique = true, length = 20)
+    private String delivererMobile; // 라이더(배달원) 휴대폰 번호
+
     @Column(name = "deliverer_password", nullable = false, length = 255)
     private String delivererPassword; // 비밀번호
 

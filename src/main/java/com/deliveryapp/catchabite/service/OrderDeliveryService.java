@@ -2,16 +2,19 @@ package com.deliveryapp.catchabite.service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.deliveryapp.catchabite.domain.enumtype.DeliveryStatus;
+import com.deliveryapp.catchabite.dto.OrderDeliveryDTO;
 import com.deliveryapp.catchabite.entity.Deliverer;
 import com.deliveryapp.catchabite.entity.OrderDelivery;
 import com.deliveryapp.catchabite.repository.DelivererRepository;
 import com.deliveryapp.catchabite.repository.OrderDeliveryRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -217,12 +220,12 @@ public class OrderDeliveryService {
 
     // 1. 상태 검증
     if (od.getOrderDeliveryStatus() != DeliveryStatus.CANCELLED) {
-        throw new IllegalStateException("오직 취소된 요청만 다시 배정할 수 있다.");
+        throw new IllegalStateException("오직 취소된 요청만 다시 배정할 수 있습니다.");
     }
 
     // 2. 완료된 건은 복구 불가
     if (od.getOrderDeliveryCompleteTime() != null) {
-        throw new IllegalStateException("배달완료된 건은 배달원 요청 불가.");
+        throw new IllegalStateException("배달완료된 건은 배달원 요청 불가합니다.");
     }
 
     // 3. 배달 컨텍스트 초기화
@@ -238,7 +241,83 @@ public class OrderDeliveryService {
 
     // 5. (선택) 재오픈 시간 기록 필드가 있다면 set
     // od.setReopenedAt(LocalDateTime.now());
-}
+    }
 
+    /** 01/19 ~ 01/20 ******************************************************************************************************/
+    /* UserDeliveryController - 배달 단건 조회 (주문 고객) */
+    @Transactional(readOnly = true)
+    public OrderDeliveryDTO getDeliveryForUser(Long deliveryId, Long userId) {
+        OrderDelivery od = orderDeliveryRepository.findDeliveryForUser(deliveryId, userId)
+                            .orElseThrow(() -> new IllegalArgumentException("조회 권한이 없거나 배달이 없습니다."));
+        return OrderDeliveryDTO.from(od);
+    }
+    
+    /* UserDeliveryController - 주문들의 배달 목록 (주문 고객) */
+    @Transactional(readOnly = true)
+    public List<OrderDeliveryDTO> getDeliveriesByUser(Long userId) {
+        List<OrderDelivery> list = orderDeliveryRepository.findDeliveriesForUser(userId);
+        if (userId == null) throw new AccessDeniedException("조회 권한이 없거나 배달이 없습니다.");
+        return list.stream()
+                .map(OrderDeliveryDTO::from)
+                .toList();
+    }
+
+    /* StoreDeliveryController - 내 매장 배달 단건 조회 (매장 주인) */
+    @Transactional(readOnly = true)
+    public OrderDeliveryDTO getDeliveryForStore(Long deliveryId, Long storeOwnerId) {
+        OrderDelivery od = orderDeliveryRepository.findForStore(deliveryId, storeOwnerId)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 배달을 조회할 권한이 없습니다."));
+        return OrderDeliveryDTO.from(od);
+    }
+
+    /* StoreDeliveryController - 내 매장 전체 배달 목록 (매장 주인) */
+    @Transactional(readOnly = true)
+    public List<OrderDeliveryDTO> getDeliveriesByStore(Long storeOwnerId) {
+        List<OrderDelivery> list = orderDeliveryRepository.findDeliveriesByStore(storeOwnerId);
+        if (storeOwnerId == null) throw new AccessDeniedException("해당 배달을 조회할 권한이 없습니다.");
+        return list.stream()
+                .map(OrderDeliveryDTO::from)
+                .toList();
+    }
+
+    /* StoreDeliveryController - 상태별 조회 (매장 주인) */
+    @Transactional(readOnly = true)
+    public List<OrderDeliveryDTO> getDeliveriesByStoreAndStatus(Long storeOwnerId, DeliveryStatus orderDeliveryStatus) {
+        List<OrderDelivery> list = orderDeliveryRepository.findDeliveriesInStatus(storeOwnerId, orderDeliveryStatus);
+        if (storeOwnerId == null) throw new AccessDeniedException("해당 배달 상태를 조회할 권한이 없습니다.");
+        return list.stream()
+                .map(OrderDeliveryDTO::from)
+                .toList();
+    }
+
+    /* DelivererDeliveryController - 내 배달 단건 조회 (배달원) */
+    @Transactional(readOnly = true)
+    public OrderDeliveryDTO getDeliveryForDeliverer(Long deliveryId, Long delivererId) {
+        OrderDelivery od = orderDeliveryRepository.findDeliveryForDeliverer(deliveryId, delivererId)
+                        .orElseThrow(() -> new IllegalArgumentException("해당 배달을 조회할 권한이 없습니다."));
+        return OrderDeliveryDTO.from(od);
+    }
+
+    /* DelivererDeliveryController - 내 배달 목록 조회 (배달원) */
+    @Transactional(readOnly = true)
+    public List<OrderDeliveryDTO> getDeliveriesByDeliverer(Long delivererId) {
+        List<OrderDelivery> list = orderDeliveryRepository
+                            .findByDeliverer_DelivererId(delivererId);
+        if (delivererId == null) throw new AccessDeniedException("해당 배달을 조회할 권한이 없습니다.");
+        return list.stream()
+                .map(OrderDeliveryDTO::from)
+                .toList();
+    }
+
+    /* DelivererDeliveryController - 상태별 내 배달 조회 (배달원) */
+    @Transactional(readOnly = true)
+    public List<OrderDeliveryDTO> getDeliveriesByDelivererInStatus(Long delivererId, DeliveryStatus orderDeliveryStatus) {
+        List<OrderDelivery> list = orderDeliveryRepository.findDeliveriesByDelivererInStatus(delivererId, orderDeliveryStatus);
+        if (delivererId == null) throw new AccessDeniedException("해당 배달 상태를 조회할 권한이 없습니다.");
+        return list.stream()
+                .map(OrderDeliveryDTO::from)
+                .toList();
+    }
+    /****************************************************************************************************************/
 
 }

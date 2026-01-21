@@ -21,9 +21,9 @@ public class DelivererDTO {
 
     private Long delivererId;              
 
-    // 1월 12일 새로 추가한 부분(라이더 로그인 ID, PW)
+    // (라이더 로그인 ID(email), 휴대폰 번호, PW)
     private String delivererEmail;            
-
+    private String delivererMobile;
     private String delivererPassword;
 
     @NotNull

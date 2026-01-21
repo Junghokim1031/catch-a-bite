@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.deliveryapp.catchabite.domain.enumtype.DeliveryStatus;
+import com.deliveryapp.catchabite.entity.OrderDelivery;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -44,5 +45,16 @@ public class OrderDeliveryDTO {
     private DeliveryStatus orderDeliveryStatus = DeliveryStatus.PENDING;
 
     private LocalDateTime orderDeliveryCreatedDate;
+
+
+    /********************************** 01/19일 추가 **************************************/
+    // deliveryId와 orderDeliveryStatus(배달 상태)를 찾아온다.
+    public static OrderDeliveryDTO from(OrderDelivery od) {
+        return OrderDeliveryDTO.builder()
+                .deliveryId(od.getDeliveryId())
+                .orderDeliveryStatus(od.getOrderDeliveryStatus())
+                .build();
+    }
+    /*************************************************************************************/
 
 }
