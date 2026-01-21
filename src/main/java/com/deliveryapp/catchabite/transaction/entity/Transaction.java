@@ -1,19 +1,8 @@
 package com.deliveryapp.catchabite.transaction.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.deliveryapp.catchabite.domain.enumtype.TransactionType;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -40,7 +29,7 @@ import java.time.LocalDateTime;
  * Dependencies: JPA, Lombok, TransactionType
  */
 @Entity
-@Table(name = "TRANSACTION")
+@Table(name = "transaction")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -50,41 +39,41 @@ public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TRANSACTION_ID")
+    @Column(name = "transaction_id")
     private Long transactionId;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TRANSACTION_TYPE", nullable = false)
+    @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
 
-    @Column(name = "TRANSACTION_RELATED_ENTITY_ID", nullable = false)
+    @Column(name = "related_entity_id", nullable = false)
     private Long relatedEntityId;
 
-    @Column(name = "TRANSACTION_RELATED_ENTITY_TYPE", nullable = false, length = 50)
+    @Column(name = "related_entity_type", nullable = false, length = 50)
     private String relatedEntityType;
 
-    @Column(name = "TRANSACTION_AMOUNT", nullable = false)
+    @Column(name = "amount", nullable = false)
     private Long amount;
 
-    @Column(name = "TRANSACTION_CURRENCY", nullable = false, length = 10)
+    @Column(name = "currency", nullable = false, length = 10)
     private String currency;
 
-    @Column(name = "TRANSACTION_STATUS", nullable = false, length = 50)
+    @Column(name = "transaction_status", nullable = false, length = 50)
     private String transactionStatus;
 
-    @Column(name = "TRANSACTION_PORTONE_PAYMENT_ID", length = 255)
+    @Column(name = "portone_payment_id", length = 255)
     private String portonePaymentId;
 
-    @Column(name = "TRANSACTION_PORTONE_TRANSFER_ID", length = 255)
+    @Column(name = "portone_transfer_id", length = 255)
     private String portoneTransferId;
 
-    @Column(name = "TRANSACTION_FAILURE_REASON", length = 500)
+    @Column(name = "failure_reason", length = 500)
     private String failureReason;
 
-    @Column(name = "TRANSACTION_CREATED_AT", nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "TRANSACTION_COMPLETED_AT")
+    @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
     @PrePersist

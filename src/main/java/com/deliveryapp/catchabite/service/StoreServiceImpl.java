@@ -119,7 +119,15 @@ public class StoreServiceImpl implements StoreService {
 		String nextCategory = dto.getStoreCategory() != null ? dto.getStoreCategory() : store.getStoreCategory();
 		String nextIntro = dto.getStoreIntro() != null ? dto.getStoreIntro() : store.getStoreIntro();
 
+		// ✅ 추가: 배달조건 patch (null-safe)
+		Integer nextMinOrder = dto.getStoreMinOrder() != null ? dto.getStoreMinOrder() : store.getStoreMinOrder();
+		Integer nextMaxDist = dto.getStoreMaxDist() != null ? dto.getStoreMaxDist() : store.getStoreMaxDist();
+		Integer nextDeliveryFee = dto.getStoreDeliveryFee() != null ? dto.getStoreDeliveryFee() : store.getStoreDeliveryFee();
+
 		store.changeStoreInfo(nextName, nextPhone, nextAddress, nextCategory, nextIntro);
+
+		// ✅ 추가: 배달조건 반영(엔티티 메서드 필요)
+		store.changeDeliveryCondition(nextMinOrder, nextMaxDist, nextDeliveryFee);
 
 		return StoreDTO.builder()
 				.storeId(store.getStoreId())
@@ -128,6 +136,10 @@ public class StoreServiceImpl implements StoreService {
 				.storeAddress(store.getStoreAddress())
 				.storeCategory(store.getStoreCategory())
 				.storeIntro(store.getStoreIntro())
+				// ✅ 추가: 배달조건 응답 포함
+				.storeMinOrder(store.getStoreMinOrder())
+				.storeMaxDist(store.getStoreMaxDist())
+				.storeDeliveryFee(store.getStoreDeliveryFee())
 				.build();
 	}
 
