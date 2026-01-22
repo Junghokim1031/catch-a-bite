@@ -1,6 +1,7 @@
 package com.deliveryapp.catchabite.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,8 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import com.deliveryapp.catchabite.converter.MenuConverter;
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
 import com.deliveryapp.catchabite.dto.MenuDTO;
+import com.deliveryapp.catchabite.dto.UserMenuDetailDTO;
+import com.deliveryapp.catchabite.dto.UserMenuOptionDTO;
+import com.deliveryapp.catchabite.dto.UserMenuOptionGroupDTO;
+import com.deliveryapp.catchabite.entity.Menu;
 import com.deliveryapp.catchabite.entity.MenuCategory;
 import com.deliveryapp.catchabite.repository.MenuCategoryRepository;
+import com.deliveryapp.catchabite.repository.MenuRepository;
 import com.deliveryapp.catchabite.repository.StoreRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,9 +26,45 @@ import lombok.RequiredArgsConstructor;
 public class UserMenuCategoryServiceImpl implements UserMenuCategoryService{
 
     private final StoreRepository storeRepository;
+    private final MenuRepository menuRepository;
     private final MenuCategoryRepository menuCategoryRepository;
     private final MenuConverter menuConverter;
     
+
+    @Override
+    public UserMenuDetailDTO getMenuDetail(Long menuId) {
+        // Fetch Menu with OptionGroups and Options to avoid N+1
+        // Note: You might need a custom query in MenuRepository for FETCH JOIN
+        // For now, relying on Lazy loading with BatchSize (if configured) or standard fetching
+        Menu menu = menuRepository.findById(menuId)
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+
+        return UserMenuDetailDTO.builder()
+                .menuId(menu.getMenuId())
+                .menuName(menu.getMenuName())
+                .menuDescription(menu.getMenuDescription())
+                .menuPrice(menu.getMenuPrice())
+                .menuIsAvailable(menu.getMenuIsAvailable())
+                // Map Option Groups
+                .optionGroups(menu.getMenuOptionGroups().stream()
+                        .map(group -> UserMenuOptionGroupDTO.builder()
+                                .menuOptionGroupId(group.getMenuOptionGroupId())
+                                .menuOptionGroupName(group.getMenuOptionGroupName())
+                                .required(group.getMenuOptionGroupRequired())
+                                // Map Options
+                                .options(group.getMenuOptions().stream()
+                                        .map(option -> UserMenuOptionDTO.builder()
+                                                .menuOptionId(option.getMenuOptionId())
+                                                .menuOptionName(option.getMenuOptionName())
+                                                .menuOptionPrice(option.getMenuOptionPrice())
+                                                .build())
+                                        .collect(Collectors.toList()))
+                                .build())
+                        .collect(Collectors.toList()))
+                .build();
+    }
+
+
     @SuppressWarnings("null")
     @Override
     @Transactional(readOnly = true)

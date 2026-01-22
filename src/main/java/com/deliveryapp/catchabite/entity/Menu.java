@@ -1,5 +1,8 @@
 package com.deliveryapp.catchabite.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +38,10 @@ public class Menu {
 
     @Column(name = "menu_is_available", nullable = false)
     private Boolean menuIsAvailable;
+
+    @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<MenuOptionGroup> menuOptionGroups = new ArrayList<>();
 
     public void changeInfo(MenuCategory category, String name, Integer price, String description) {
         this.menuCategory = category;

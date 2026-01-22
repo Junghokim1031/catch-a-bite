@@ -1,5 +1,8 @@
 package com.deliveryapp.catchabite.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,6 +28,10 @@ public class MenuOptionGroup {
 
     @Column(name = "menu_option_group_required")
     private Boolean menuOptionGroupRequired;
+
+    @OneToMany(mappedBy = "menuOptionGroup", fetch = FetchType.LAZY)
+    @Builder.Default
+    private List<MenuOption> menuOptions = new ArrayList<>();
 
     public void changeInfo(String name, Boolean required) {
 	this.menuOptionGroupName = name;
