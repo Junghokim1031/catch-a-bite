@@ -2,7 +2,10 @@ package com.deliveryapp.catchabite.auth.api;
 
 import com.deliveryapp.catchabite.auth.api.dto.DelivererLoginRequest;
 import com.deliveryapp.catchabite.auth.api.dto.DelivererSignUpRequest;
+import com.deliveryapp.catchabite.auth.api.dto.ExistsResponse;
+import com.deliveryapp.catchabite.auth.service.DelivererAuthService;
 import com.deliveryapp.catchabite.common.constant.RoleConstant;
+import com.deliveryapp.catchabite.common.util.RoleNormalizer;
 import com.deliveryapp.catchabite.common.exception.InvalidCredentialsException;
 import com.deliveryapp.catchabite.domain.enumtype.DelivererVehicleType;
 import com.deliveryapp.catchabite.domain.enumtype.YesNo;
@@ -28,15 +31,25 @@ public class DelivererAuthController {
 
     private final DelivererRepository delivererRepository;
     private final PasswordEncoder passwordEncoder;
+    private final DelivererAuthService delivererAuthService;
 
-    public DelivererAuthController(DelivererRepository delivererRepository, PasswordEncoder passwordEncoder) {
+    public DelivererAuthController(
+        DelivererRepository delivererRepository,
+        PasswordEncoder passwordEncoder,
+        DelivererAuthService delivererAuthService
+    ) {
         this.delivererRepository = delivererRepository;
         this.passwordEncoder = passwordEncoder;
+        this.delivererAuthService = delivererAuthService;
     }
 
     // 라이더 회원가입 API
     @PostMapping("/signup")
     public String signup(@Valid @RequestBody DelivererSignUpRequest request) {
+
+        if (!request.password().equals(request.confirmPassword())) {
+            throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        }
 
         if (delivererRepository.existsByDelivererEmail(request.email())) {
             throw new IllegalArgumentException("Email is already in use.");
@@ -58,6 +71,7 @@ public class DelivererAuthController {
 
         delivererRepository.save(Deliverer.builder()
             .delivererEmail(request.email())
+            .delivererMobile(request.mobile())
             .delivererPassword(passwordEncoder.encode(request.password()))
             .delivererVehicleType(type)
             .delivererLicenseNumber(needsVehicleInfo ? request.licenseNumber() : null)
@@ -83,9 +97,9 @@ public class DelivererAuthController {
         }
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-            request.email(),
+            "RIDER:" + request.email(),
             null,
-            List.of(new SimpleGrantedAuthority(RoleConstant.ROLE_RIDER))
+            List.of(new SimpleGrantedAuthority(RoleNormalizer.normalize(RoleConstant.ROLE_RIDER)))
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
         httpRequest.getSession(true);
@@ -93,6 +107,18 @@ public class DelivererAuthController {
             .saveContext(SecurityContextHolder.getContext(), httpRequest, httpResponse);
 
         return "ok";
+    }
+
+    // 이메일 중복 체크
+    @GetMapping("/exists/email")
+    public ExistsResponse existsEmail(@RequestParam("email") String email) {
+        return new ExistsResponse(delivererAuthService.existsEmail(email));
+    }
+
+    // 휴대폰 중복 체크
+    @GetMapping("/exists/mobile")
+    public ExistsResponse existsMobile(@RequestParam("mobile") String mobile) {
+        return new ExistsResponse(delivererAuthService.existsMobile(mobile));
     }
 
     private boolean isBlank(String v) {

@@ -21,4 +21,7 @@ public interface AuthService {
 
     // 닉네임 중복 여부 확인
     boolean existsNickname(String nickname);
+
+    // 로그인 사용자 정보 조회
+    MeResponse getMe();
 }

@@ -1,5 +1,6 @@
 package com.deliveryapp.catchabite.auth.api.dto;
 
+import com.deliveryapp.catchabite.common.constant.PasswordPolicyConstant;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -24,10 +25,9 @@ public record SignUpRequest(
     String mobile, // 휴대폰 번호
 
     @NotBlank
-    @Size(min = 8, max = 64)
     @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-={}\\[\\]:;\"'<>,.?/]).{8,64}$",
-        message = "비밀번호는 영문/숫자/특수문자 포함 8~64자리여야 합니다."
+        regexp = PasswordPolicyConstant.PASSWORD_REGEX,
+        message = PasswordPolicyConstant.PASSWORD_MESSAGE
     )
     String password, // 로그인 비밀번호
 

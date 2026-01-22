@@ -11,5 +11,8 @@ public record LoginRequest(
     String loginKey, // 로그인 식별값 (이메일 또는 휴대폰 번호)
 
     @NotBlank
-    String password // 로그인 비밀번호
+    String password, // 로그인 비밀번호
+
+    @NotBlank
+    String accountType // USER/OWNER/RIDER
 ) {}

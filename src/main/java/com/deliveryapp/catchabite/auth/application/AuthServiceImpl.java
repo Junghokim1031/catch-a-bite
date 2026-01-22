@@ -4,9 +4,16 @@ import com.deliveryapp.catchabite.auth.api.dto.*;
 import com.deliveryapp.catchabite.common.constant.RoleConstant;
 import com.deliveryapp.catchabite.common.exception.InvalidCredentialsException;
 import com.deliveryapp.catchabite.entity.AppUser;
+import com.deliveryapp.catchabite.entity.Deliverer;
+import com.deliveryapp.catchabite.entity.StoreOwner;
 import com.deliveryapp.catchabite.repository.AppUserRepository;
+import com.deliveryapp.catchabite.repository.DelivererRepository;
+import com.deliveryapp.catchabite.repository.StoreOwnerRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +26,20 @@ public class AuthServiceImpl implements AuthService {
 
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final StoreOwnerRepository storeOwnerRepository;
+    private final DelivererRepository delivererRepository;
 
     // 사용자 저장소 및 비밀번호 암호화 도구 주입
     public AuthServiceImpl(
         AppUserRepository appUserRepository,
-        PasswordEncoder passwordEncoder
+        PasswordEncoder passwordEncoder,
+        StoreOwnerRepository storeOwnerRepository,
+        DelivererRepository delivererRepository
     ) {
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.storeOwnerRepository = storeOwnerRepository;
+        this.delivererRepository = delivererRepository;
     }
 
     // 회원가입 처리 및 사용자 계정 생성
@@ -78,21 +91,62 @@ public class AuthServiceImpl implements AuthService {
     // 로그인 처리 및 사용자 인증
     @Override
     public LoginResponse login(LoginRequest request) {
+        String accountType = normalizeAccountType(request.accountType());
+        String loginKey = request.loginKey().trim();
 
-        AppUser account = appUserRepository
-            .findByAppUserEmailOrAppUserMobile(request.loginKey(), request.loginKey())
-            .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+        if ("USER".equals(accountType)) {
+            AppUser account = appUserRepository
+                .findByAppUserEmailOrAppUserMobile(loginKey, loginKey)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
 
-        // 비밀번호 일치 여부 검증
-        if (!passwordEncoder.matches(request.password(), account.getAppUserPassword())) {
-            throw new InvalidCredentialsException("Invalid credentials.");
+            if (!passwordEncoder.matches(request.password(), account.getAppUserPassword())) {
+                throw new InvalidCredentialsException("Invalid credentials.");
+            }
+
+            return new LoginResponse(
+                account.getAppUserId(),
+                account.getAppUserNickname(),
+                RoleConstant.ROLE_USER
+            );
         }
 
-        return new LoginResponse(
-            account.getAppUserId(),
-            account.getAppUserNickname(),
-            RoleConstant.ROLE_USER
-        );
+        if ("OWNER".equals(accountType)) {
+            StoreOwner owner = storeOwnerRepository
+                .findByStoreOwnerEmail(loginKey)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+
+            if (!owner.isActive()) {
+                throw new InvalidCredentialsException("Invalid credentials.");
+            }
+
+            if (!passwordEncoder.matches(request.password(), owner.getStoreOwnerPassword())) {
+                throw new InvalidCredentialsException("Invalid credentials.");
+            }
+
+            return new LoginResponse(
+                owner.getStoreOwnerId(),
+                owner.getStoreOwnerName(),
+                RoleConstant.ROLE_STORE_OWNER
+            );
+        }
+
+        if ("RIDER".equals(accountType)) {
+            Deliverer deliverer = delivererRepository
+                .findByDelivererEmail(loginKey)
+                .orElseThrow(() -> new InvalidCredentialsException("Invalid credentials."));
+
+            if (!passwordEncoder.matches(request.password(), deliverer.getDelivererPassword())) {
+                throw new InvalidCredentialsException("Invalid credentials.");
+            }
+
+            return new LoginResponse(
+                deliverer.getDelivererId(),
+                deliverer.getDelivererEmail(),
+                RoleConstant.ROLE_RIDER
+            );
+        }
+
+        throw new IllegalArgumentException("Invalid account type.");
     }
 
     // 이메일 중복 여부 확인
@@ -111,5 +165,99 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public boolean existsNickname(String nickname) {
         return appUserRepository.existsByAppUserNickname(nickname);
+    }
+
+    // 로그인 사용자 정보 조회
+    @Override
+    public MeResponse getMe() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null
+            || !authentication.isAuthenticated()
+            || "anonymousUser".equals(authentication.getPrincipal())) {
+            throw new IllegalStateException("Unauthorized");
+        }
+        String principal = authentication.getName();
+        String[] parts = parsePrincipal(principal);
+        String accountType = parts[0];
+        String loginKey = parts[1];
+        String roleName = resolveRole(authentication);
+
+        if ("USER".equals(accountType)) {
+            AppUser appUser = appUserRepository
+                .findByAppUserEmailOrAppUserMobile(loginKey, loginKey)
+                .orElseThrow(() -> new IllegalStateException("Unauthorized"));
+            return new MeResponse(
+                appUser.getAppUserId(),
+                loginKey,
+                appUser.getAppUserName(),
+                roleName != null ? roleName : RoleConstant.ROLE_USER,
+                appUser.getAppUserMobile(),
+                accountType
+            );
+        }
+
+        if ("OWNER".equals(accountType)) {
+            StoreOwner storeOwner = storeOwnerRepository
+                .findByStoreOwnerEmail(loginKey)
+                .orElseThrow(() -> new IllegalStateException("Unauthorized"));
+            return new MeResponse(
+                storeOwner.getStoreOwnerId(),
+                loginKey,
+                storeOwner.getStoreOwnerName(),
+                roleName != null ? roleName : RoleConstant.ROLE_STORE_OWNER,
+                storeOwner.getStoreOwnerMobile(),
+                accountType
+            );
+        }
+
+        if ("RIDER".equals(accountType)) {
+            Deliverer deliverer = delivererRepository
+                .findByDelivererEmail(loginKey)
+                .orElseThrow(() -> new IllegalStateException("Unauthorized"));
+            return new MeResponse(
+                deliverer.getDelivererId(),
+                loginKey,
+                loginKey,
+                roleName != null ? roleName : RoleConstant.ROLE_RIDER,
+                null,
+                accountType
+            );
+        }
+
+        throw new IllegalStateException("Unauthorized");
+    }
+
+    private String resolveRole(Authentication authentication) {
+        if (authentication == null) {
+            return null;
+        }
+        return authentication.getAuthorities()
+            .stream()
+            .map(GrantedAuthority::getAuthority)
+            .findFirst()
+            .orElse(null);
+    }
+
+    private String normalizeAccountType(String accountType) {
+        if (accountType == null) {
+            return "";
+        }
+        return accountType.trim().toUpperCase();
+    }
+
+    private String[] parsePrincipal(String principal) {
+        if (principal == null || !principal.contains(":")) {
+            throw new IllegalStateException("Unauthorized");
+        }
+        String[] parts = principal.split(":", 2);
+        if (parts.length != 2) {
+            throw new IllegalStateException("Unauthorized");
+        }
+        String accountType = parts[0].trim().toUpperCase();
+        String loginKey = parts[1].trim();
+        if (accountType.isBlank() || loginKey.isBlank()) {
+            throw new IllegalStateException("Unauthorized");
+        }
+        return new String[] { accountType, loginKey };
     }
 }

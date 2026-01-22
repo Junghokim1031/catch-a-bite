@@ -28,7 +28,11 @@ public class CorsConfig {
                 "http://localhost:80",
                 "http://127.0.0.1:3000",
                 "http://127.0.0.1",
-                "http://127.0.0.1:80"
+                "http://127.0.0.1:80",
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://127.0.0.1:5173",
+                "http://127.0.0.1:5174"
         ));
 
         // 쿠키(JSESSIONID) 기반 인증/세션을 쓸 경우 true 필요

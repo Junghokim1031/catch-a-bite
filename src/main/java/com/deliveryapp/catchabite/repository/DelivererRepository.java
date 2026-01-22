@@ -15,6 +15,9 @@ public interface DelivererRepository extends JpaRepository<Deliverer, Long> {
     // 이메일 중복 여부 확인
     boolean existsByDelivererEmail(String delivererEmail);
 
+    // 휴대폰 번호 중복 여부 확인
+    boolean existsByDelivererMobile(String delivererMobile);
+
     //운전면허 중복 여부 확인(오토바이/자동차만 사용)
     boolean existsByDelivererLicenseNumber(String delivererLicenseNumber);
 
