@@ -3,7 +3,6 @@ package com.deliveryapp.catchabite.controller;
 import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
-import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.StoreService;
 import com.deliveryapp.catchabite.util.ApiResponse;
@@ -13,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -85,14 +83,4 @@ public class OwnerStoreController {
 				"storeOpenStatus", req.getStoreOpenStatus()
 		), "store status updated"));
 	}
-
-	@GetMapping
-	public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> getMyStores(Principal principal) {
-
-      Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
-
-      List<StoreSummaryDTO> stores = storeService.getMyStores(storeOwnerId);
-      return ResponseEntity.ok(ApiResponse.ok(stores));
-   }
-
 }

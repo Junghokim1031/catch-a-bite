@@ -7,11 +7,9 @@ import lombok.Getter;
 @Getter
 @Builder
 public class StoreSummaryDTO {
-
    private Long storeId;
    private String storeName;
-   private String storeCategory;
-   private String storeAddress;
    private StoreOpenStatus storeOpenStatus;
-
+   private Integer storeDeliveryFee;
+   private Double storeRating;
 }

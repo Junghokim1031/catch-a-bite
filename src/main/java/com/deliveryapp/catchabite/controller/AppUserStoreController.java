@@ -13,10 +13,11 @@ package com.deliveryapp.catchabite.controller;
 import com.deliveryapp.catchabite.converter.StoreConverter;
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
 import com.deliveryapp.catchabite.dto.StoreDTO;
+import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.repository.StoreRepository;
-import com.deliveryapp.catchabite.service.MenuCategoryService;
-import com.deliveryapp.catchabite.service.StoreService;
+import com.deliveryapp.catchabite.service.UserStoreService;
+import com.deliveryapp.catchabite.service.UserMenuCategoryService;
 import com.deliveryapp.catchabite.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -32,10 +33,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AppUserStoreController {
 
-    private final StoreService storeService;
+    private final UserStoreService userStoreService;
     private final StoreRepository storeRepository;
     private final StoreConverter storeConverter;
-    private final MenuCategoryService menuCategoryService;
+    private final UserMenuCategoryService userMenuCategoryService;
+
 
 
     /**
@@ -44,7 +46,7 @@ public class AppUserStoreController {
      */
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<StoreDTO>>> searchStores(@RequestParam String keyword) {
-        List<StoreDTO> stores = storeService.searchStores(keyword);
+        List<StoreDTO> stores = userStoreService.searchStores(keyword);
         return ResponseEntity.ok(ApiResponse.ok(stores)); //
     }
 
@@ -54,7 +56,7 @@ public class AppUserStoreController {
      */
     @GetMapping("/category")
     public ResponseEntity<ApiResponse<List<StoreDTO>>> getStoresByCategory(@RequestParam String storeCategory) {
-        List<StoreDTO> stores = storeService.getStoresByCategory(storeCategory);
+        List<StoreDTO> stores = userStoreService.getStoresByCategory(storeCategory);
         return ResponseEntity.ok(ApiResponse.ok(stores)); //
     }
 
@@ -81,12 +83,23 @@ public class AppUserStoreController {
     @GetMapping("/{storeId}/menus")
     public ResponseEntity<ApiResponse<List<MenuCategoryWithMenusDTO>>> getStoreMenus(@PathVariable Long storeId) {
         
-        List<MenuCategoryWithMenusDTO> menus = menuCategoryService.getMenuBoardForUser(storeId);
+        List<MenuCategoryWithMenusDTO> menus = userMenuCategoryService.getMenuBoardForUser(storeId);
         if (menus.isEmpty()) {
             log.info("======================================================");
             log.info("메뉴분류가 없습니다");
             log.info("======================================================");
         }
         return ResponseEntity.ok(ApiResponse.ok(menus));
+    }
+
+    /**
+     * 랜덤 가게 10개를 조회합니다.
+     * 리액트에서 필요한 정보만 갖고 있는 StoreSummaryDTO를 반환합니다.
+     * GET /api/v1/appuser/stores/random?limit=10
+     */
+    @GetMapping("/random")
+    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> getRandomStores(@RequestParam(defaultValue = "10") int limit) {
+        List<StoreSummaryDTO> stores = userStoreService.getRandomStores(limit);
+        return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 }

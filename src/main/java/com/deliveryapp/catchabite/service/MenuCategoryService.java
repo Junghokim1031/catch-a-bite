@@ -14,6 +14,4 @@ public interface MenuCategoryService {
 	MenuCategoryDTO updateMenuCategory(Long storeOwnerId, Long storeId, Long menuCategoryId, MenuCategoryDTO dto);
 
 	void deleteMenuCategory(Long storeOwnerId, Long storeId, Long menuCategoryId);
-
-	List<MenuCategoryWithMenusDTO> getMenuBoardForUser(Long storeId);
 }
