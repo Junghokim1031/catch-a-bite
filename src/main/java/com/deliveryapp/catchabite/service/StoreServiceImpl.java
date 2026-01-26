@@ -2,8 +2,10 @@ package com.deliveryapp.catchabite.service;
 
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import com.deliveryapp.catchabite.dto.StoreDTO;
+import com.deliveryapp.catchabite.dto.StoreDeliveryConditionPatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
+import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreOwner;
 import com.deliveryapp.catchabite.repository.StoreOwnerRepository;
@@ -12,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -87,7 +91,6 @@ public class StoreServiceImpl implements StoreService {
 		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
 				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
 
-
 		// PUT은 "전체 수정"으로 취급합니다 (유효성 검증상 필수값을 모두 받는 계약)
 		store.changeStoreInfo(
 				dto.getStoreName(),
@@ -119,7 +122,15 @@ public class StoreServiceImpl implements StoreService {
 		String nextCategory = dto.getStoreCategory() != null ? dto.getStoreCategory() : store.getStoreCategory();
 		String nextIntro = dto.getStoreIntro() != null ? dto.getStoreIntro() : store.getStoreIntro();
 
+		// ✅ 추가: 배달조건 patch (null-safe)
+		Integer nextMinOrder = dto.getStoreMinOrder() != null ? dto.getStoreMinOrder() : store.getStoreMinOrder();
+		Integer nextMaxDist = dto.getStoreMaxDist() != null ? dto.getStoreMaxDist() : store.getStoreMaxDist();
+		Integer nextDeliveryFee = dto.getStoreDeliveryFee() != null ? dto.getStoreDeliveryFee() : store.getStoreDeliveryFee();
+
 		store.changeStoreInfo(nextName, nextPhone, nextAddress, nextCategory, nextIntro);
+
+		// ✅ 추가: 배달조건 반영(엔티티 메서드 필요)
+		store.changeDeliveryCondition(nextMinOrder, nextMaxDist, nextDeliveryFee);
 
 		return StoreDTO.builder()
 				.storeId(store.getStoreId())
@@ -128,6 +139,34 @@ public class StoreServiceImpl implements StoreService {
 				.storeAddress(store.getStoreAddress())
 				.storeCategory(store.getStoreCategory())
 				.storeIntro(store.getStoreIntro())
+				// ✅ 추가: 배달조건 응답 포함
+				.storeMinOrder(store.getStoreMinOrder())
+				.storeMaxDist(store.getStoreMaxDist())
+				.storeDeliveryFee(store.getStoreDeliveryFee())
+				.build();
+	}
+
+	@Override
+	public StoreDTO patchStoreDeliveryCondition(Long storeOwnerId, Long storeId, StoreDeliveryConditionPatchRequestDTO dto) {
+
+		if (dto.getStoreMinOrder() == null && dto.getStoreMaxDist() == null && dto.getStoreDeliveryFee() == null) {
+			throw new IllegalArgumentException("변경할 배달조건 값이 없습니다.");
+		}
+
+		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
+
+		Integer nextMinOrder = dto.getStoreMinOrder() != null ? dto.getStoreMinOrder() : store.getStoreMinOrder();
+		Integer nextMaxDist = dto.getStoreMaxDist() != null ? dto.getStoreMaxDist() : store.getStoreMaxDist();
+		Integer nextDeliveryFee = dto.getStoreDeliveryFee() != null ? dto.getStoreDeliveryFee() : store.getStoreDeliveryFee();
+
+		store.changeDeliveryCondition(nextMinOrder, nextMaxDist, nextDeliveryFee);
+
+		return StoreDTO.builder()
+				.storeId(store.getStoreId())
+				.storeMinOrder(store.getStoreMinOrder())
+				.storeMaxDist(store.getStoreMaxDist())
+				.storeDeliveryFee(store.getStoreDeliveryFee())
 				.build();
 	}
 
@@ -144,4 +183,23 @@ public class StoreServiceImpl implements StoreService {
 	public void changeStoreStatus(Long storeOwnerId, Long storeId, StoreStatusChangeRequestDTO req) {
 		changeStoreStatus(storeOwnerId, storeId, req.getStoreOpenStatus());
 	}
+
+	// ✅ 추가: 내 매장 목록(요약) 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<StoreSummaryDTO> getMyStores(Long storeOwnerId) {
+
+		List<Store> stores = storeRepository.findAllByStoreOwner_StoreOwnerId(storeOwnerId);
+
+		return stores.stream()
+				.map(s -> StoreSummaryDTO.builder()
+						.storeId(s.getStoreId())
+						.storeName(s.getStoreName())
+						.storeCategory(s.getStoreCategory())
+						.storeAddress(s.getStoreAddress())
+						.storeOpenStatus(s.getStoreOpenStatus())
+						.build())
+				.toList();
+	}
+
 }

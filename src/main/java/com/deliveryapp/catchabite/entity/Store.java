@@ -96,6 +96,14 @@ public class Store {
         this.storeIntro = storeIntro;
     }
 
+    public void changeDeliveryCondition(Integer storeMinOrder, Integer storeMaxDist, Integer storeDeliveryFee) {
+        this.storeMinOrder = storeMinOrder;
+        this.storeMaxDist = storeMaxDist;
+        this.storeDeliveryFee = storeDeliveryFee;
+    }
+
+
+
     /* =========================
        연관관계
        ========================= */

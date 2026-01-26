@@ -1,16 +1,16 @@
 package com.deliveryapp.catchabite.controller;
 
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.StoreImageDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.StoreImageService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class OwnerStoreImageController {
 
 	// 이미지 삭제
 	@DeleteMapping("/{storeImageId}")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> deleteStoreImage(Principal principal,
+	public ResponseEntity<ApiResponse<Object>> deleteStoreImage(Principal principal,
 											  @PathVariable Long storeId,
 											  @PathVariable Long storeImageId) {
 
@@ -57,9 +57,6 @@ public class OwnerStoreImageController {
 
 		storeImageService.deleteStoreImage(storeOwnerId, storeId, storeImageId);
 
-		return ResponseEntity.ok(ApiResponse.ok(Map.of(
-				"deleted", true,
-				"storeImageId", storeImageId
-		), "store image deleted"));
+		return ResponseEntity.ok(ApiResponse.ok(null, "store image deleted"));
 	}
 }

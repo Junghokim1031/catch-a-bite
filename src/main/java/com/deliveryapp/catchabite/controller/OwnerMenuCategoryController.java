@@ -1,16 +1,16 @@
 package com.deliveryapp.catchabite.controller;
 
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.MenuCategoryDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.MenuCategoryService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -64,7 +64,7 @@ public class OwnerMenuCategoryController {
 
 	// 카테고리 삭제
 	@DeleteMapping("/{menuCategoryId}")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> deleteMenuCategory(Principal principal,
+	public ResponseEntity<ApiResponse<Object>> deleteMenuCategory(Principal principal,
 												@PathVariable Long storeId,
 												@PathVariable Long menuCategoryId) {
 
@@ -72,9 +72,6 @@ public class OwnerMenuCategoryController {
 
 		menuCategoryService.deleteMenuCategory(storeOwnerId, storeId, menuCategoryId);
 
-		return ResponseEntity.ok(ApiResponse.ok(Map.of(
-				"deleted", true,
-				"menuCategoryId", menuCategoryId
-		), "menu category deleted"));
+		return ResponseEntity.ok(ApiResponse.ok(null, "menu category deleted"));
 	}
 }

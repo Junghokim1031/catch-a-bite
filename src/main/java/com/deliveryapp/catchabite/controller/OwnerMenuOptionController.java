@@ -1,14 +1,16 @@
 package com.deliveryapp.catchabite.controller;
 
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.MenuOptionDTO;
 import com.deliveryapp.catchabite.dto.MenuOptionGroupDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.MenuOptionGroupService;
 import com.deliveryapp.catchabite.service.MenuOptionService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.security.Principal;
 import java.util.List;
@@ -24,6 +26,17 @@ public class OwnerMenuOptionController {
 
 
 	// 옵션 그룹 
+
+	// 옵션 그룹 목록 조회
+	@GetMapping
+	public ResponseEntity<ApiResponse<List<MenuOptionGroupDTO>>> listOptionGroups(
+			Principal principal,
+			@PathVariable Long menuId
+	) {
+		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
+		List<MenuOptionGroupDTO> result = menuOptionGroupService.listOptionGroups(storeOwnerId, menuId);
+		return ResponseEntity.ok(ApiResponse.ok(result));
+	}
 
 
 	// 옵션 그룹 등록

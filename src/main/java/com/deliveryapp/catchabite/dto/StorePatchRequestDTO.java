@@ -1,6 +1,9 @@
 package com.deliveryapp.catchabite.dto;
 
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 import lombok.*;
 
 /**
@@ -28,4 +31,17 @@ public class StorePatchRequestDTO {
 
 	@Size(max = 4000, message = "storeIntro is too long")
 	private String storeIntro;
+
+	@Min(0)
+	@Max(2_000_000_000)
+	private Integer storeMinOrder;
+
+	@Min(0)
+	@Max(1_000_000)
+	private Integer storeMaxDist;
+
+	@Min(0)
+	@Max(2_000_000_000)
+	private Integer storeDeliveryFee;
+
 }

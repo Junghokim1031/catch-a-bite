@@ -1,16 +1,16 @@
 package com.deliveryapp.catchabite.controller;
 
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.MenuDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.MenuService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -59,29 +59,27 @@ public class OwnerMenuController {
 
 	// 메뉴 판매 상태 변경
 	@PatchMapping("/{menuId}/availability")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> changeAvailability(Principal principal,
-											   @PathVariable Long storeId,
-											   @PathVariable Long menuId,
-											   @RequestBody MenuDTO dto) {
+	public ResponseEntity<ApiResponse<Object>> changeAvailability(Principal principal,
+								   @PathVariable Long storeId,
+								   @PathVariable Long menuId,
+								   @RequestBody java.util.Map<String, Boolean> body) {
 
 		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
 
-		menuService.changeMenuAvailability(storeOwnerId, storeId, menuId, dto.getMenuIsAvailable());
-		return ResponseEntity.ok(ApiResponse.ok(
-				Map.of("menuId", menuId, "menuIsAvailable", dto.getMenuIsAvailable()),
-				"menu availability updated"
-		));
+		Boolean menuIsAvailable = body.get("menuIsAvailable");
+		menuService.changeMenuAvailability(storeOwnerId, storeId, menuId, menuIsAvailable);
+		return ResponseEntity.ok(ApiResponse.ok(null, "menu availability updated"));
 	}
 
 	// 메뉴 삭제
 	@DeleteMapping("/{menuId}")
-	public ResponseEntity<ApiResponse<Map<String, Object>>> deleteMenu(Principal principal,
+	public ResponseEntity<ApiResponse<Object>> deleteMenu(Principal principal,
 										@PathVariable Long storeId,
 										@PathVariable Long menuId) {
 
 		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
 
 		menuService.deleteMenu(storeOwnerId, storeId, menuId);
-		return ResponseEntity.ok(ApiResponse.ok(Map.of("deleted", true, "menuId", menuId), "menu deleted"));
+		return ResponseEntity.ok(ApiResponse.ok(null, "menu deleted"));
 	}
 }

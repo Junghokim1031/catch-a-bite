@@ -10,9 +10,13 @@ public interface MenuOptionGroupRepository extends JpaRepository<MenuOptionGroup
 
     List<MenuOptionGroup> findAllByMenu_MenuId(Long menuId);
 
+    List<MenuOptionGroup> findAllByMenu_MenuIdOrderByMenuOptionGroupIdAsc(Long menuId);
+
     Optional<MenuOptionGroup> findByMenuOptionGroupIdAndMenu_MenuId(Long menuOptionGroupId, Long menuId);
 
     boolean existsByMenuOptionGroupIdAndMenu_MenuId(Long menuOptionGroupId, Long menuId);
 
     void deleteAllByMenu_MenuId(Long menuId);
+
+    
 }

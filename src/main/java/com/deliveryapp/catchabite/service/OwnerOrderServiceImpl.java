@@ -2,13 +2,18 @@ package com.deliveryapp.catchabite.service;
 
 import com.deliveryapp.catchabite.domain.enumtype.OrderStatus;
 import com.deliveryapp.catchabite.dto.OwnerOrderDTO;
+import com.deliveryapp.catchabite.dto.PageResponseDTO;
 import com.deliveryapp.catchabite.entity.StoreOrder;
 import com.deliveryapp.catchabite.repository.StoreOrderRepository;
 import com.deliveryapp.catchabite.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,30 +27,55 @@ public class OwnerOrderServiceImpl implements OwnerOrderService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<OwnerOrderDTO> listOrders(Long storeOwnerId, Long storeId, String status) {
-
+    public PageResponseDTO<OwnerOrderDTO> listOrders(
+            Long storeOwnerId,
+            Long storeId,
+            String status,
+            LocalDate from,
+            LocalDate to,
+            Pageable pageable
+    ) {
         validateOwnedStore(storeOwnerId, storeId);
 
-        List<StoreOrder> orders;
+        boolean hasDateFilter = (from != null || to != null);
+        LocalDateTime fromDt = (from == null) ? null : from.atStartOfDay();
+        LocalDateTime toDt = (to == null) ? null : to.plusDays(1).atStartOfDay().minusNanos(1);
+
+        Page<StoreOrder> page;
 
         if (status == null || status.isBlank()) {
-            orders = storeOrderRepository.findAllByStore_StoreIdOrderByOrderDateDesc(storeId);
+            if (hasDateFilter) {
+                if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
+                if (toDt == null) toDt = LocalDateTime.now().plusYears(100);
+                page = storeOrderRepository.findByStore_StoreIdAndOrderDateBetween(storeId, fromDt, toDt, pageable);
+            } else {
+                page = storeOrderRepository.findByStore_StoreId(storeId, pageable);
+            }
         } else {
             OrderStatus orderStatus = parseStatus(status);
-            orders = storeOrderRepository.findAllByStore_StoreIdAndOrderStatusOrderByOrderDateDesc(storeId, orderStatus);
+
+            if (hasDateFilter) {
+                if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
+                if (toDt == null) toDt = LocalDateTime.now().plusYears(100);
+                page = storeOrderRepository.findByStore_StoreIdAndOrderStatusAndOrderDateBetween(
+                        storeId, orderStatus, fromDt, toDt, pageable
+                );
+            } else {
+                page = storeOrderRepository.findByStore_StoreIdAndOrderStatus(storeId, orderStatus, pageable);
+            }
         }
 
-        return orders.stream()
-                .map(o -> OwnerOrderDTO.builder()
-                        .orderId(o.getOrderId())
-                        .storeId(o.getStore().getStoreId())
-                        .orderStatus(o.getOrderStatus() == null ? null : o.getOrderStatus().getValue())
-                        .orderCreatedAt(o.getOrderDate())
-                        .orderTotalPrice(o.getOrderTotalPrice())
-                        .deliveryFee(o.getOrderDeliveryFee())
-                        .orderAddress(o.getOrderAddressSnapshot())
-                        .build())
-                .toList();
+        Page<OwnerOrderDTO> dtoPage = page.map(o -> OwnerOrderDTO.builder()
+                .orderId(o.getOrderId())
+                .storeId(o.getStore().getStoreId())
+                .orderStatus(o.getOrderStatus() == null ? null : o.getOrderStatus().getValue())
+                .orderCreatedAt(o.getOrderDate())
+                .orderTotalPrice(o.getOrderTotalPrice())
+                .deliveryFee(o.getOrderDeliveryFee())
+                .orderAddress(o.getOrderAddressSnapshot())
+                .build());
+
+        return PageResponseDTO.from(dtoPage);
     }
 
     @Override

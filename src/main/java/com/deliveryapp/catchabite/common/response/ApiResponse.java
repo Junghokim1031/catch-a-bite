@@ -62,4 +62,10 @@ public class ApiResponse<T> {
     public LocalDateTime getTimestamp() {
         return timestamp;
     }
+		// 성공 응답 (데이터 + 메시지)
+		public static <T> ApiResponse<T> ok(T data, String message) {
+				return new ApiResponse<>(true, "OK", message, data);
+		}
+
+		
 }

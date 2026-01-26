@@ -1,5 +1,7 @@
 package com.deliveryapp.catchabite.service;
 
+import java.util.List;
+
 import com.deliveryapp.catchabite.dto.MenuOptionGroupDTO;
 import com.deliveryapp.catchabite.entity.Menu;
 import com.deliveryapp.catchabite.entity.MenuOptionGroup;
@@ -20,8 +22,31 @@ public class MenuOptionGroupServiceImpl implements MenuOptionGroupService {
 	private final MenuOptionGroupRepository menuOptionGroupRepository;
 
 	@Override
-	public void createOptionGroup(Long storeOwnerId, Long menuId, MenuOptionGroupDTO dto) {
+	@Transactional(readOnly = true)
+	public List<MenuOptionGroupDTO> listOptionGroups(Long storeOwnerId, Long menuId) {
 
+		Menu menu = menuRepository.findById(menuId)
+				.orElseThrow(() -> new IllegalArgumentException("menu not found"));
+
+		Long storeId = menu.getStore().getStoreId();
+
+		storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("not your store"));
+
+		return menuOptionGroupRepository.findAllByMenu_MenuIdOrderByMenuOptionGroupIdAsc(menuId)
+				.stream()
+				.map(group -> MenuOptionGroupDTO.builder()
+						.menuOptionGroupId(group.getMenuOptionGroupId())
+						.menuId(group.getMenu().getMenuId())
+						.menuOptionGroupName(group.getMenuOptionGroupName())
+						.required(group.getMenuOptionGroupRequired())
+						.build()
+				)
+				.toList();
+	}
+
+	@Override
+	public void createOptionGroup(Long storeOwnerId, Long menuId, MenuOptionGroupDTO dto) {
 		Menu menu = menuRepository.findById(menuId)
 				.orElseThrow(() -> new IllegalArgumentException("menu not found"));
 
@@ -41,7 +66,6 @@ public class MenuOptionGroupServiceImpl implements MenuOptionGroupService {
 
 	@Override
 	public void updateOptionGroup(Long storeOwnerId, Long menuId, Long menuOptionGroupId, MenuOptionGroupDTO dto) {
-
 		Menu menu = menuRepository.findById(menuId)
 				.orElseThrow(() -> new IllegalArgumentException("menu not found"));
 
@@ -62,7 +86,6 @@ public class MenuOptionGroupServiceImpl implements MenuOptionGroupService {
 
 	@Override
 	public void deleteOptionGroup(Long storeOwnerId, Long menuId, Long menuOptionGroupId) {
-
 		Menu menu = menuRepository.findById(menuId)
 				.orElseThrow(() -> new IllegalArgumentException("menu not found"));
 
