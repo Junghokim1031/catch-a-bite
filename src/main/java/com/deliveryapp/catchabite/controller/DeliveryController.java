@@ -17,13 +17,13 @@ import lombok.RequiredArgsConstructor;
 
 // DeliveryAssignRequestDTO, DeliveryActionRequestDTO, DeliveryApiResponseDTO 이용
 @RestController
-@RequestMapping("/api/deliveries")
+@RequestMapping("/api/v1/deliveries")
 @RequiredArgsConstructor
 public class DeliveryController {
 
     private final OrderDeliveryService deliveryService;
 
-    // 배정(관리자/시스템)
+    // 배정(매장주인)
     @PostMapping("/{deliveryId}/assign")
     public ResponseEntity<DeliveryApiResponseDTO<Void>> assign(@PathVariable Long deliveryId, @RequestBody @Valid DeliveryAssignRequestDTO req) {
         deliveryService.assignDeliverer(deliveryId, req.getDelivererId());
