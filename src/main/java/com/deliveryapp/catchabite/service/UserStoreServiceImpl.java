@@ -32,21 +32,23 @@ public class UserStoreServiceImpl implements UserStoreService {
     private final StoreRepository storeRepository;
     private final StoreConverter storeConverter;
     private final ReviewRepository reviewRepository;
-    
-    // ✅ Added back these repositories for Favorite logic
     private final FavoriteStoreRepository favoriteStoreRepository;
     private final AppUserRepository appUserRepository;
     
     @Override    
-    public List<StoreDTO> searchStores(String keyword) {
+    public List<StoreSummaryDTO> searchStores(String keyword) {
         List<Store> stores = storeRepository.findByStoreNameContainingIgnoreCaseOrStoreCategoryContainingIgnoreCase(keyword, keyword);
-        return stores.stream().map(storeConverter::toDto).toList();
+        return stores.stream()
+                .map(storeConverter::toSummaryDTO)
+                .toList();
     }
 
     @Override
-    public List<StoreDTO> getStoresByCategory(String storeCategory) {
+    public List<StoreSummaryDTO> getStoresByCategory(String storeCategory) {
         List<Store> stores = storeRepository.findByStoreCategory(storeCategory);
-        return stores.stream().map(storeConverter::toDto).toList();
+        return stores.stream()
+                .map(storeConverter::toSummaryDTO)
+                .toList();
     }
 
     @Override
@@ -69,7 +71,6 @@ public class UserStoreServiceImpl implements UserStoreService {
 
         Integer reviewCount = (int) reviewRepository.countByStore_StoreId(storeId);
 
-        // ✅ This iteration is now SAFE from N+1 due to batch fetching config
         List<MenuCategoryWithMenusDTO> categoryDTOs = store.getMenuCategories().stream()
                 .map(category -> MenuCategoryWithMenusDTO.builder()
                         .menuCategoryId(category.getMenuCategoryId())

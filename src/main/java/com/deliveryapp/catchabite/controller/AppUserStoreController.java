@@ -27,14 +27,14 @@ public class AppUserStoreController {
     private final UserMenuCategoryService userMenuCategoryService;
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<StoreDTO>>> searchStores(@RequestParam String keyword) {
-        List<StoreDTO> stores = userStoreService.searchStores(keyword);
+    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> searchStores(@RequestParam String keyword) {
+        List<StoreSummaryDTO> stores = userStoreService.searchStores(keyword);
         return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 
     @GetMapping("/category")
-    public ResponseEntity<ApiResponse<List<StoreDTO>>> getStoresByCategory(@RequestParam String storeCategory) {
-        List<StoreDTO> stores = userStoreService.getStoresByCategory(storeCategory);
+    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> getStoresByCategory(@RequestParam String storeCategory) {
+        List<StoreSummaryDTO> stores = userStoreService.getStoresByCategory(storeCategory);
         return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 
