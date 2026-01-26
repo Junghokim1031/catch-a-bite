@@ -11,8 +11,7 @@ import com.deliveryapp.catchabite.converter.StoreConverter;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
 import com.deliveryapp.catchabite.dto.MenuDTO;
-import com.deliveryapp.catchabite.dto.StoreDTO;
-import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.dto.UserStoreResponseDTO;
 import com.deliveryapp.catchabite.entity.AppUser;
 import com.deliveryapp.catchabite.entity.FavoriteStore;
@@ -36,7 +35,7 @@ public class UserStoreServiceImpl implements UserStoreService {
     private final AppUserRepository appUserRepository;
     
     @Override    
-    public List<StoreSummaryDTO> searchStores(String keyword) {
+    public List<UserStoreSummaryDTO> searchStores(String keyword) {
         List<Store> stores = storeRepository.findByStoreNameContainingIgnoreCaseOrStoreCategoryContainingIgnoreCase(keyword, keyword);
         return stores.stream()
                 .map(storeConverter::toSummaryDTO)
@@ -44,7 +43,7 @@ public class UserStoreServiceImpl implements UserStoreService {
     }
 
     @Override
-    public List<StoreSummaryDTO> getStoresByCategory(String storeCategory) {
+    public List<UserStoreSummaryDTO> getStoresByCategory(String storeCategory) {
         List<Store> stores = storeRepository.findByStoreCategory(storeCategory);
         return stores.stream()
                 .map(storeConverter::toSummaryDTO)
@@ -52,7 +51,7 @@ public class UserStoreServiceImpl implements UserStoreService {
     }
 
     @Override
-    public List<StoreSummaryDTO> getRandomStores() {
+    public List<UserStoreSummaryDTO> getRandomStores() {
         List<Store> allOpenStores = storeRepository.findByStoreOpenStatus(StoreOpenStatus.OPEN);
         return allOpenStores.stream()
                 .map(storeConverter::toSummaryDTO)

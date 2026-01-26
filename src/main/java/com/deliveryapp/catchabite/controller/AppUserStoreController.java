@@ -3,7 +3,7 @@ package com.deliveryapp.catchabite.controller;
 
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
 import com.deliveryapp.catchabite.dto.StoreDTO;
-import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.dto.UserStoreResponseDTO;
 import com.deliveryapp.catchabite.service.UserStoreService;
 import com.deliveryapp.catchabite.service.UserMenuCategoryService;
@@ -27,14 +27,14 @@ public class AppUserStoreController {
     private final UserMenuCategoryService userMenuCategoryService;
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> searchStores(@RequestParam String keyword) {
-        List<StoreSummaryDTO> stores = userStoreService.searchStores(keyword);
+    public ResponseEntity<ApiResponse<List<UserStoreSummaryDTO>>> searchStores(@RequestParam String keyword) {
+        List<UserStoreSummaryDTO> stores = userStoreService.searchStores(keyword);
         return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 
     @GetMapping("/category")
-    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> getStoresByCategory(@RequestParam String storeCategory) {
-        List<StoreSummaryDTO> stores = userStoreService.getStoresByCategory(storeCategory);
+    public ResponseEntity<ApiResponse<List<UserStoreSummaryDTO>>> getStoresByCategory(@RequestParam String storeCategory) {
+        List<UserStoreSummaryDTO> stores = userStoreService.getStoresByCategory(storeCategory);
         return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 
@@ -58,8 +58,8 @@ public class AppUserStoreController {
     }
 
     @GetMapping("/random")
-    public ResponseEntity<ApiResponse<List<StoreSummaryDTO>>> getRandomStores() {
-        List<StoreSummaryDTO> stores = userStoreService.getRandomStores();
+    public ResponseEntity<ApiResponse<List<UserStoreSummaryDTO>>> getRandomStores() {
+        List<UserStoreSummaryDTO> stores = userStoreService.getRandomStores();
         return ResponseEntity.ok(ApiResponse.ok(stores));
     }
 

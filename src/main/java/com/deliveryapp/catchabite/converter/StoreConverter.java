@@ -1,7 +1,8 @@
 package com.deliveryapp.catchabite.converter;
 
 import com.deliveryapp.catchabite.dto.StoreDTO;
-import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreImage;
 
@@ -32,7 +33,7 @@ public class StoreConverter {
                 .build();
     }
 
-    public StoreSummaryDTO toSummaryDTO(Store store) {
+    public UserStoreSummaryDTO toSummaryDTO(Store store) {
         if (store == null) return null;
 
         List<String> imageUrls = (store.getImages() != null)
@@ -41,7 +42,7 @@ public class StoreConverter {
                 .collect(Collectors.toList())
             : Collections.emptyList();
 
-        return StoreSummaryDTO.builder()
+        return UserStoreSummaryDTO.builder()
                 .storeId(store.getStoreId())
                 .storeName(store.getStoreName())
                 .storeOpenStatus(store.getStoreOpenStatus())
