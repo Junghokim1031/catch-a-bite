@@ -10,7 +10,7 @@ package com.deliveryapp.catchabite.controller;
  * 4. 리뷰 삭제 (deleteReview) - 리뷰 삭제 [DELETE, Return: Void]
  */
 
-import com.deliveryapp.catchabite.util.ApiResponse;
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.ReviewDTO;
 import com.deliveryapp.catchabite.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -37,17 +37,17 @@ public class ReviewController {
         
         // 1. 주문 ID 유효성 체크: null이거나 0 이하일 경우 에러 반환
         if (storeOrderId == null || storeOrderId <= 0) {
-            return ResponseEntity.badRequest().body(ApiResponse.fail("유효하지 않은 주문 ID입니다."));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("BAD_REQUEST","유효하지 않은 주문 ID입니다."));
         }
 
         // 2. 평점 유효성 체크: 0점 미만이거나 5점을 초과할 경우 에러 반환
         if (rating == null || rating.compareTo(BigDecimal.ZERO) < 0 || rating.compareTo(new BigDecimal("5")) > 0) {
-            return ResponseEntity.badRequest().body(ApiResponse.fail("평점은 0점에서 5점 사이여야 합니다."));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("BAD_REQUEST","평점은 0점에서 5점 사이여야 합니다."));
         }
 
         // 3. 리뷰 내용 유효성 체크: 내용이 비어있거나 공백만 있을 경우 에러 반환
         if (content == null || content.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(ApiResponse.fail("리뷰 내용을 입력해주세요."));
+            return ResponseEntity.badRequest().body(ApiResponse.fail("BAD_REQUEST","리뷰 내용을 입력해주세요."));
         }
 
         ReviewDTO createdReview = reviewService.createReview(storeOrderId, rating, content);

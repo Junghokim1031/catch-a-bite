@@ -6,11 +6,16 @@ import com.deliveryapp.catchabite.entity.AppUser;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreOrder;
 import lombok.RequiredArgsConstructor;
+
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class StoreOrderConverter {
+
+    private final OrderItemConverter orderItemConverter;
 
     public StoreOrderDTO toDto(StoreOrder entity) {
         if (entity == null) return null;
@@ -20,6 +25,11 @@ public class StoreOrderConverter {
                 .appUserId(entity.getAppUser()!= null?entity.getAppUser().getAppUserId() : null)
                 .storeId(entity.getStore() != null ? entity.getStore().getStoreId() : null)
                 .addressId(entity.getAddress() != null ? entity.getAddress().getAddressId() : null)
+                .storeName(entity.getStore() != null ? entity.getStore().getStoreName() : null)
+                .orderItems(entity.getOrderItems() != null ? 
+                        entity.getOrderItems().stream()
+                            .map(orderItemConverter::toDto)
+                            .collect(Collectors.toList()) : null)
                 .orderAddressSnapshot(entity.getOrderAddressSnapshot())
                 .orderTotalPrice(entity.getOrderTotalPrice())
                 .orderDeliveryFee(entity.getOrderDeliveryFee())

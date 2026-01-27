@@ -2,7 +2,6 @@ package com.deliveryapp.catchabite.repository;
 
 import com.deliveryapp.catchabite.domain.enumtype.TransactionType;
 import com.deliveryapp.catchabite.dto.OwnerTransactionDTO;
-import com.deliveryapp.catchabite.entity.StoreOrder;
 import com.deliveryapp.catchabite.transaction.entity.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

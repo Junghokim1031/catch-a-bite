@@ -2,12 +2,11 @@
 package com.deliveryapp.catchabite.controller;
 
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
-import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.dto.UserStoreResponseDTO;
 import com.deliveryapp.catchabite.service.UserStoreService;
 import com.deliveryapp.catchabite.service.UserMenuCategoryService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 
