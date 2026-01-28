@@ -119,7 +119,7 @@ public class PaymentVerificationService {
 
             // Save Transaction Log
             Transaction transaction = Transaction.builder()
-                    .transactionType(com.deliveryapp.catchabite.transaction.entity.TransactionType.USERPAYMENT)
+                    .transactionType(com.deliveryapp.catchabite.domain.enumtype.TransactionType.USER_PAYMENT)
                     .relatedEntityId(orderId)
                     .relatedEntityType("ORDER")
                     .amount(portOneAmount)

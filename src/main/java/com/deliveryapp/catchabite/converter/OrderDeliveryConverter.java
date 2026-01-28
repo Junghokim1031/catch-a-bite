@@ -9,52 +9,76 @@ import com.deliveryapp.catchabite.entity.StoreOrder;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import lombok.RequiredArgsConstructor;
 
 @Component
-@RequiredArgsConstructor
 public class OrderDeliveryConverter {
 
-    // dto의 Long 타입 delivererId와 entity의 Deliverer 타입 deliverer를 연결시키기 위해 사용, orderId도 같은 방법(orderId)
-    // -> getReference를 이용하기 위해 필요 -> getReference는 Delivere (entity)에서 delivererId에 접근할 수 있게하는 메서드
     @PersistenceContext
     private EntityManager em;
 
     public OrderDeliveryDTO toDto(OrderDelivery entity) {
         if (entity == null) return null;
 
-        OrderDeliveryDTO orderDeliveryDTO = OrderDeliveryDTO.builder()
+        return OrderDeliveryDTO.builder()
             .deliveryId(entity.getDeliveryId())
-            .orderId(entity.getStoreOrder().getOrderId())
-            .delivererId(entity.getDeliverer().getDelivererId())
+            .orderId(entity.getStoreOrder() != null ? entity.getStoreOrder().getOrderId() : null)
+
+            // ✅ 배정 전에는 deliverer가 null 가능
+            .delivererId(entity.getDeliverer() != null ? entity.getDeliverer().getDelivererId() : null)
+
             .orderAcceptTime(entity.getOrderAcceptTime())
             .orderDeliveryPickupTime(entity.getOrderDeliveryPickupTime())
             .orderDeliveryStartTime(entity.getOrderDeliveryStartTime())
             .orderDeliveryCompleteTime(entity.getOrderDeliveryCompleteTime())
-            .orderDeliveryDistance(entity.getOrderDeliveryDistance())
-            .build();
 
-        return orderDeliveryDTO;
+            .orderDeliveryDistance(entity.getOrderDeliveryDistance())
+            .orderDeliveryEstTime(entity.getOrderDeliveryEstTime())
+            .orderDeliveryActTime(entity.getOrderDeliveryActTime())
+
+            .orderDeliveryStatus(entity.getOrderDeliveryStatus())
+            .orderDeliveryCreatedDate(entity.getOrderDeliveryCreatedDate())
+
+            // ✅ 01/26 추가된 위도/경도
+            .storeLatitude(entity.getStoreLatitude())
+            .storeLongitude(entity.getStoreLongitude())
+            .dropoffLatitude(entity.getDropoffLatitude())
+            .dropoffLongitude(entity.getDropoffLongitude())
+            .build();
     }
 
     public OrderDelivery toEntity(OrderDeliveryDTO dto) {
         if (dto == null) return null;
 
-        Deliverer delivererRef = em.getReference(Deliverer.class, dto.getDelivererId());
-        StoreOrder storeOrderRef = em.getReference(StoreOrder.class,dto.getOrderId());
-        
-        OrderDelivery orderDelivery = OrderDelivery.builder()
+        // ✅ storeOrder는 optional=false 이므로 orderId는 필수(DTO에서도 @NotNull)
+        StoreOrder storeOrderRef = em.getReference(StoreOrder.class, dto.getOrderId());
+
+        // ✅ deliverer는 배정 전 null 가능
+        Deliverer delivererRef = (dto.getDelivererId() == null)
+            ? null
+            : em.getReference(Deliverer.class, dto.getDelivererId());
+
+        return OrderDelivery.builder()
             .deliveryId(dto.getDeliveryId())
             .storeOrder(storeOrderRef)
             .deliverer(delivererRef)
+
             .orderAcceptTime(dto.getOrderAcceptTime())
             .orderDeliveryPickupTime(dto.getOrderDeliveryPickupTime())
             .orderDeliveryStartTime(dto.getOrderDeliveryStartTime())
             .orderDeliveryCompleteTime(dto.getOrderDeliveryCompleteTime())
-            .orderDeliveryDistance(dto.getOrderDeliveryDistance())
-            .build();
-        
-        return orderDelivery;
 
+            .orderDeliveryDistance(dto.getOrderDeliveryDistance())
+            .orderDeliveryEstTime(dto.getOrderDeliveryEstTime())
+            .orderDeliveryActTime(dto.getOrderDeliveryActTime())
+
+            .orderDeliveryStatus(dto.getOrderDeliveryStatus())
+            .orderDeliveryCreatedDate(dto.getOrderDeliveryCreatedDate())
+
+            // ✅ 01/26 추가된 위도/경도
+            .storeLatitude(dto.getStoreLatitude())
+            .storeLongitude(dto.getStoreLongitude())
+            .dropoffLatitude(dto.getDropoffLatitude())
+            .dropoffLongitude(dto.getDropoffLongitude())
+            .build();
     }
 }

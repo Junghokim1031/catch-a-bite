@@ -46,7 +46,14 @@ public class OrderDeliveryDTO {
 
     private LocalDateTime orderDeliveryCreatedDate;
 
-
+    /********************************** 01/26일 추가 **************************************/
+    // 매장 좌표
+    private BigDecimal storeLatitude;
+    private BigDecimal storeLongitude;
+    // 고객 좌표
+    private BigDecimal dropoffLatitude;
+    private BigDecimal dropoffLongitude;
+    /*************************************************************************************/
     /********************************** 01/19일 추가 **************************************/
     // deliveryId와 orderDeliveryStatus(배달 상태)를 찾아온다.
     public static OrderDeliveryDTO from(OrderDelivery od) {
