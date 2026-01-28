@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.deliveryapp.catchabite.converter.MenuImageConverter;
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
-import com.deliveryapp.catchabite.dto.MenuImageDTO;
+import com.deliveryapp.catchabite.dto.UserMenuImageDTO;
 import com.deliveryapp.catchabite.dto.UserMenuDetailDTO;
 import com.deliveryapp.catchabite.dto.UserMenuOptionDTO;
 import com.deliveryapp.catchabite.dto.UserMenuOptionGroupDTO;
@@ -103,13 +103,13 @@ public class UserMenuCategoryServiceImpl implements UserMenuCategoryService{
         List<MenuCategoryWithMenusDTO> result = new ArrayList<>();
 
         for (MenuCategory category : categories) {
-            List<MenuImageDTO> menuDtos = new ArrayList<>();
+            List<UserMenuImageDTO> menuDtos = new ArrayList<>();
 
             for (Menu menu : category.getMenus()) {
                 String imgUrl = imageMap.get(menu.getMenuId());
                 
-                // [CHANGED] Use MenuImageConverter to get MenuImageDTO
-                MenuImageDTO dto = menuImageConverter.toDto(
+                // [CHANGED] Use MenuImageConverter to get UserMenuImageDTO
+                UserMenuImageDTO dto = menuImageConverter.toDto(
                         menu, 
                         storeId, 
                         category.getMenuCategoryId(), 

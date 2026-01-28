@@ -11,7 +11,7 @@ import com.deliveryapp.catchabite.payment.repository.PaymentRepository;
 import com.deliveryapp.catchabite.repository.StoreOrderRepository;
 import com.deliveryapp.catchabite.transaction.entity.Transaction;
 import com.deliveryapp.catchabite.transaction.service.TransactionService;
-import com.deliveryapp.catchabite.service.OwnerSettlementItemService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;

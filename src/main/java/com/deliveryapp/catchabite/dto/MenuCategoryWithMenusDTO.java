@@ -10,5 +10,5 @@ import java.util.List;
 public class MenuCategoryWithMenusDTO {
     private Long menuCategoryId;          // 메뉴 카테고리 ID
     private String menuCategoryName;      // 카테고리 이름
-    private List<MenuImageDTO> menus;     // 해당 카테고리에 속한 메뉴 리스트
+    private List<UserMenuImageDTO> menus;     // 해당 카테고리에 속한 메뉴 리스트
 }

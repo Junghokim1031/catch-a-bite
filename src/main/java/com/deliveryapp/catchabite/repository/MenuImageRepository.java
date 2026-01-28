@@ -13,4 +13,10 @@ public interface MenuImageRepository extends JpaRepository<MenuImage, Long> {
     Optional<MenuImage> findByMenuImageIdAndMenu_MenuId(Long menuImageId, Long menuId);
 
     List<MenuImage> findAllByMenu_MenuId(Long menuId);
+
+    // Find image by single menu ID
+    Optional<MenuImage> findByMenu_MenuId(Long menuId);    
+
+    // Efficiently fetch images for a list of menus (to avoid N+1 problem)
+    List<MenuImage> findByMenu_MenuIdIn(List<Long> menuIds);
 }

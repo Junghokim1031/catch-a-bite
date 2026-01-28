@@ -1,16 +1,16 @@
 package com.deliveryapp.catchabite.converter;
 
-import com.deliveryapp.catchabite.dto.MenuImageDTO;
+import com.deliveryapp.catchabite.dto.UserMenuImageDTO;
 import com.deliveryapp.catchabite.entity.Menu;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MenuImageConverter {
 
-    public MenuImageDTO toDto(Menu menu, Long storeId, Long menuCategoryId, String imageUrl) {
+    public UserMenuImageDTO toDto(Menu menu, Long storeId, Long menuCategoryId, String imageUrl) {
         if (menu == null) return null;
 
-        return MenuImageDTO.builder()
+        return UserMenuImageDTO.builder()
                 .menuId(menu.getMenuId())
                 .storeId(storeId)
                 .menuCategoryId(menuCategoryId)
