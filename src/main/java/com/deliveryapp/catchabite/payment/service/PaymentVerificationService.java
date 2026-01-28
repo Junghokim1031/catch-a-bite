@@ -3,6 +3,7 @@ package com.deliveryapp.catchabite.payment.service;
 import com.deliveryapp.catchabite.common.constant.PaymentConstant;
 import com.deliveryapp.catchabite.common.exception.PaymentException;
 import com.deliveryapp.catchabite.domain.enumtype.OrderStatus;
+import com.deliveryapp.catchabite.domain.enumtype.TransactionType;
 import com.deliveryapp.catchabite.entity.Payment;
 import com.deliveryapp.catchabite.entity.StoreOrder;
 import com.deliveryapp.catchabite.payment.dto.PortOnePaymentVerificationDTO;
@@ -119,7 +120,7 @@ public class PaymentVerificationService {
 
             // Save Transaction Log
             Transaction transaction = Transaction.builder()
-                    .transactionType(com.deliveryapp.catchabite.domain.enumtype.TransactionType.USER_PAYMENT)
+                    .transactionType(TransactionType.USER_PAYMENT)
                     .relatedEntityId(orderId)
                     .relatedEntityType("ORDER")
                     .amount(portOneAmount)

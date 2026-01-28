@@ -40,9 +40,9 @@ public class PaymentConstant {
     public static final String PAYMENT_METHOD_VBANK = "vbank";
     
     // ========== 거래 타입 (Transaction Type) ==========
-    public static final String TRANSACTION_TYPE_USER_PAYMENT = "USERPAYMENT";
-    public static final String TRANSACTION_TYPE_STORE_PAYOUT = "STOREPAYOUT";
-    public static final String TRANSACTION_TYPE_DELIVERY_PAYOUT = "DELIVERYPAYOUT";
+    public static final String TRANSACTION_TYPE_USER_PAYMENT = "USER_PAYMENT";
+    public static final String TRANSACTION_TYPE_STORE_PAYOUT = "STORE_PAYOUT";
+    public static final String TRANSACTION_TYPE_DELIVERY_PAYOUT = "DELIVERY_PAYOUT";
     
     // ========== 거래 상태 (Transaction Status) ==========
     public static final String TRANSACTION_STATUS_PENDING = "PENDING";

@@ -126,14 +126,32 @@ public class PaymentService {
             log.info("Generated merchant_uid: {}", merchantUid);
             
             // Step 4: Payment 엔티티 생성
-            Payment payment = Payment.builder()
+            Payment payment = paymentRepository.findByStoreOrder(order).orElse(null);
+
+            if (payment != null) {
+            log.info("Existing payment found for order: {}", order.getOrderId());
+            
+            // If already paid, block the request
+            if (PaymentConstant.PAYMENT_STATUS_PAID.equals(payment.getPaymentStatus())) {
+                    throw new PaymentException("ALREADY_PAID", "This order has already been paid.");
+            }
+            
+            // If exists but PENDING, we can either reuse it or update the amount if changed
+            // For now, let's reuse the existing merchant_uid (or you can generate a new one if your logic requires)
+            merchantUid = generateMerchantUid(order.getOrderId()); // Or use existing if stored
+            
+            // If you want to update the amount just in case it changed
+            payment.setPaymentAmount(request.getPaymentAmount());
+            // payment.setMerchantUid(merchantUid); // If you add merchant_uid to Payment entity
+            } else {
+            // No payment exists, create a new one (Your original logic)
+            payment = Payment.builder()
                     .storeOrder(order)
-                    .paymentMethod(request.getPaymentMethod() != null ? 
-                            request.getPaymentMethod() : 
-                            PaymentConstant.PAYMENT_METHOD_CARD)
+                    .paymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : PaymentConstant.PAYMENT_METHOD_CARD)
                     .paymentAmount(request.getPaymentAmount())
                     .paymentStatus(PaymentConstant.PAYMENT_STATUS_PENDING)
                     .build();
+            }
             
             log.info("Creating Payment entity with status: PENDING");
             Payment savedPayment = paymentRepository.save(payment);

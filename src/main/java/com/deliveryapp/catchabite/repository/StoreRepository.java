@@ -5,6 +5,8 @@ import com.deliveryapp.catchabite.entity.Store;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +42,14 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
      * 사용자 -  영업 중인 가게 조회
      */
     List<Store> findByStoreOpenStatus(StoreOpenStatus status);
+
+    /**
+     * 가게와 메뉴 카테고리를 한 번에 조회 (Fetch Join)
+     * 주의: '메뉴(Menus)'까지 여기서 한 번에 Fetch Join 하면 
+     * MultipleBagFetchException이 발생할 수 있으므로, 카테고리까지만 가져오는 것이 안전합니다.
+     */
+    @Query("SELECT DISTINCT s FROM Store s " +
+           "LEFT JOIN FETCH s.menuCategories mc " +
+           "WHERE s.storeId = :storeId")
+    Optional<Store> findStoreWithCategoriesById(@Param("storeId") Long storeId);
 }

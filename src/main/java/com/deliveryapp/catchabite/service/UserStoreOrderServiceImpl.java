@@ -1,12 +1,16 @@
 package com.deliveryapp.catchabite.service;
 
+import com.deliveryapp.catchabite.converter.StoreConverter;
 import com.deliveryapp.catchabite.converter.StoreOrderConverter;
 import com.deliveryapp.catchabite.dto.StoreOrderDTO;
+import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.entity.*;
 import com.deliveryapp.catchabite.repository.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,11 +31,12 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     
     // [추가] 장바구니 데이터를 가져오기 위해 리포지토리 주입
     private final CartRepository cartRepository;
-
+    private final StoreConverter storeConverter;
 
     // =====================================================================
     // CREATE (장바구니 기반 주문 생성)
     // =====================================================================
+    @SuppressWarnings("null")
     @Override
     @Transactional
     public StoreOrderDTO createStoreOrder(StoreOrderDTO dto) {
@@ -136,6 +141,7 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     // =====================================================================
     // READ
     // =====================================================================
+    @SuppressWarnings("null")
     @Override
     public StoreOrderDTO getStoreOrder(Long storeOrderId) {
         StoreOrder order = storeOrderRepository.findById(storeOrderId)
@@ -144,7 +150,20 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     }
 
     // =====================================================================
-    // READ ALL
+    // READ ALL (AppUserId)
+    // =====================================================================
+    @Override
+    @Transactional(readOnly = true)
+    public List<StoreOrderDTO> getAllStoreOrdersForId(Long appUserId) {
+        List<StoreOrder> orders = storeOrderRepository.findAllWithItemsByUserId(appUserId);
+
+        return orders.stream()
+                .map(storeOrderConverter::toDto)
+                .collect(Collectors.toList());
+    }
+
+    // =====================================================================
+    // READ ALL (Everything)
     // =====================================================================
     @Override
     public List<StoreOrderDTO> getAllStoreOrders() {
@@ -156,6 +175,7 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     // =====================================================================
     // UPDATE
     // =====================================================================
+    @SuppressWarnings("null")
     @Override
     @Transactional
     public StoreOrderDTO updateStoreOrder(Long orderId, StoreOrderDTO dto) {
@@ -171,6 +191,7 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     // =====================================================================
     // DELETE
     // =====================================================================
+    @SuppressWarnings("null")
     @Override
     @Transactional
     public boolean deleteStoreOrder(Long orderId) {
@@ -184,8 +205,19 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
         return true;
     }
 
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserStoreSummaryDTO> getFrequentStores(Long userId) {
+        List<Store> stores = storeOrderRepository.findMostFrequentStores(userId, PageRequest.of(0, 10));
+        return stores.stream()
+                .map(storeConverter::toSummaryDTO)
+                .collect(Collectors.toList());
+    }
+
     // ===== Review에서 필요한 자료 =====
 
+    @SuppressWarnings("null")
     @Override
     public StoreOrder getValidatedOrder(Long storeOrderId) {
         if (!storeOrderRepository.existsById(storeOrderId)) {

@@ -27,17 +27,21 @@ public class CartItemServiceImpl implements CartItemService {
     private final MenuRepository menuRepository;
     private final CartItemConverter cartItemConverter;
 
+    // [수정] quantity 파라미터 추가 반영
+    // 사용자가 요청한 수량만큼 장바구니에 담기 위해 quantity 인자를 추가하고 로직에 반영함.
     @Override
     @Transactional
-    public CartItemDTO createCartItem(Long cartId, Long menuId) {
+    public CartItemDTO createCartItem(Long cartId, Long menuId, Integer quantity) {
         // Parameter 확인
-        // Long이라 Null일 수 있음.
+        // Long 및 Integer Null 체크
         if (cartId == null) {
             throw new IllegalArgumentException("카트Id가 null입니다. CartItemServiceImpl - createCartItem");
         }
         if (menuId == null) {
-            throw new IllegalArgumentException("menuId기 null입니다. CartItemServiceImpl - createCartItem");
+            throw new IllegalArgumentException("menuId가 null입니다. CartItemServiceImpl - createCartItem");
         }
+        // quantity가 null이거나 0 이하라면 기본값 1로 설정
+        int validQuantity = (quantity == null || quantity <= 0) ? 1 : quantity;
 
         // 카트 및 Menu를 build함.
         Cart cartRef = cartRepository.findById(cartId)
@@ -48,23 +52,34 @@ public class CartItemServiceImpl implements CartItemService {
             .orElseThrow(() -> new IllegalArgumentException("메뉴가 존재하지 않습니다. \n" +
                 "CartServiceImpl - createCartItem\nmenuId=" + menuId));
 
-        //Cart Item 생성
-        CartItem newItem = CartItem.builder()
-            .cart(cartRef)
-            .menu(menuRef)
-            .cartItemQuantity(1)
-            .build();
+        // 이미 담긴 메뉴면 수량 합산, 없으면 생성
+        // 같은 메뉴가 이미 장바구니에 있는지 확인
+        CartItem existingItem = cartItemRepository.findByCart_CartIdAndMenu_MenuId(cartId, menuId).orElse(null);
+        
+        CartItem savedItem;
+        if (existingItem != null) {
+            // 이미 존재하면 수량 증가
+            existingItem.changeQuantity(existingItem.getCartItemQuantity() + validQuantity);
+            savedItem = existingItem;
+        } else {
+            // 없으면 새로 생성
+            CartItem newItem = CartItem.builder()
+                .cart(cartRef)
+                .menu(menuRef)
+                .cartItemQuantity(validQuantity) // 요청받은 수량 사용
+                .build();
+            savedItem = cartItemRepository.save(newItem);
+        }
             
-        CartItemDTO result = cartItemConverter.toDto(newItem);
+        CartItemDTO result = cartItemConverter.toDto(savedItem);
         
-        
-        //로깅 하는 위치
+        // 로깅 하는 위치
         log.warn("==============================");
-        log.warn(newItem);
+        log.warn(savedItem);
         log.warn(result);
         log.warn("==============================");
 
-        //return
+        // return
         return result;
     }
 
@@ -75,7 +90,7 @@ public class CartItemServiceImpl implements CartItemService {
         if (cartId == null){
             throw new IllegalArgumentException("cartId가 null입니다. CartItemServiceImpl - getCartItemsByCartId");
         }
-        //List 생성
+        // List 생성
         List<CartItem> entities = cartItemRepository.findAllByCart_CartId(cartId);
 
         return entities.stream()
@@ -95,16 +110,17 @@ public class CartItemServiceImpl implements CartItemService {
             throw new IllegalArgumentException("newQuantity가 null 또는 0 이하입니다. CartItemServiceImpl - updateCartItem");
         }
 
-        //cartItem 찾아오기
+        // cartItem 찾아오기
         CartItem cartItemRef = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new IllegalArgumentException(
                         "카트 아이템이 존재하지 않습니다.\nCartItemServiceImpl - updateCartItem\ncartItemId=" + cartItemId));
         
-        //cartItem의 cartItemQuantity변경
+        // cartItem의 cartItemQuantity변경
         cartItemRef.changeQuantity(newQuantity);
 
         CartItemDTO result = cartItemConverter.toDto(cartItemRef);
 
+        // Logging
         log.warn("==============================");
         log.warn("Entity: " + cartItemRef);
         log.warn("DTO: "+ result);
@@ -121,9 +137,7 @@ public class CartItemServiceImpl implements CartItemService {
             throw new IllegalArgumentException("cartItemId가 null입니다. CartItemServiceImpl - deleteCartItem");
         }
 
-        //JPA사용하여 삭제
+        // JPA사용하여 삭제
         cartItemRepository.deleteById(cartItemId);
     }
-    
-
 }

@@ -2,7 +2,7 @@ package com.deliveryapp.catchabite.controller;
 
 import com.deliveryapp.catchabite.dto.UserMenuDetailDTO;
 import com.deliveryapp.catchabite.service.UserMenuCategoryService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

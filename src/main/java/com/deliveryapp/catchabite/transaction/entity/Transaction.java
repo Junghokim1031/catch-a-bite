@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * relatedEntityId + relatedEntityType로 연결합니다.
  * 
  * Required Variables/Parameters:
- * - transactionType (TransactionType): 거래 종류 (USERPAYMENT/STOREPAYOUT/DELIVERYPAYOUT)
+ * - transactionType (TransactionType): 거래 종류 (USER_PAYMENT/STORE_PAYOUT/DELIVERY_PAYOUT)
  * - relatedEntityId (Long): 관련 엔티티 ID (예: 주문ID)
  * - relatedEntityType (String): 관련 엔티티 타입 문자열 (예: "ORDER")
  * - amount (Long): 거래 금액 (KRW)
@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
  * Dependencies: JPA, Lombok, TransactionType
  */
 @Entity
-@Table(name = "transaction")
+@Table(name = "payment_transaction")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,34 +46,34 @@ public class Transaction {
     @Column(name = "transaction_type", nullable = false)
     private TransactionType transactionType;
 
-    @Column(name = "related_entity_id", nullable = false)
+    @Column(name = "transaction_related_entity_id", nullable = false)
     private Long relatedEntityId;
 
-    @Column(name = "related_entity_type", nullable = false, length = 50)
+    @Column(name = "transaction_related_entity_type", nullable = false, length = 50)
     private String relatedEntityType;
 
-    @Column(name = "amount", nullable = false)
+    @Column(name = "transaction_amount", nullable = false)
     private Long amount;
 
-    @Column(name = "currency", nullable = false, length = 10)
+    @Column(name = "transaction_currency", nullable = false, length = 10)
     private String currency;
 
     @Column(name = "transaction_status", nullable = false, length = 50)
     private String transactionStatus;
 
-    @Column(name = "portone_payment_id", length = 255)
+    @Column(name = "transaction_portone_payment_id", length = 255)
     private String portonePaymentId;
 
-    @Column(name = "portone_transfer_id", length = 255)
+    @Column(name = "transaction_portone_transfer_id", length = 255)
     private String portoneTransferId;
 
-    @Column(name = "failure_reason", length = 500)
+    @Column(name = "transaction_failure_reason", length = 500)
     private String failureReason;
 
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "transaction_created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "completed_at")
+    @Column(name = "transaction_completed_at")
     private LocalDateTime completedAt;
 
     @PrePersist

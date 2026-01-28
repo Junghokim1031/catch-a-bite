@@ -55,6 +55,7 @@ public class FavoriteStoreServiceImpl implements FavoriteStoreService {
                 .build();
                 
         FavoriteStore entity = favoriteStoreConverter.toEntity(dto, appUser, store);
+        @SuppressWarnings("null")
         FavoriteStore saved = favoriteStoreRepository.save(entity);
         return favoriteStoreConverter.toDto(saved);
     }

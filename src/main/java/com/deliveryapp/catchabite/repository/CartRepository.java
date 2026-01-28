@@ -27,6 +27,8 @@ public interface CartRepository extends JpaRepository<Cart, Long> {
      * 사용자 + 가게 기준 장바구니 삭제
      */
     void deleteByAppUser_AppUserIdAndStore_StoreId(Long appUserId, Long storeId);
+
+    Optional<Cart> findFirstByAppUser_AppUserIdOrderByCartIdDesc(Long appUserId);
 }
 
 

@@ -43,6 +43,9 @@ public class Menu {
     @Builder.Default
     private List<MenuOptionGroup> menuOptionGroups = new ArrayList<>();
 
+    @OneToOne(mappedBy = "menu", fetch = FetchType.LAZY)
+    private MenuImage menuImage;
+
     public void changeInfo(MenuCategory category, String name, Integer price, String description) {
         this.menuCategory = category;
         this.menuName = name;

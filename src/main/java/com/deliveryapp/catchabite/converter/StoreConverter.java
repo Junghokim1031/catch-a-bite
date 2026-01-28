@@ -2,7 +2,6 @@ package com.deliveryapp.catchabite.converter;
 
 import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
-import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
 import com.deliveryapp.catchabite.entity.Store;
 import com.deliveryapp.catchabite.entity.StoreImage;
 

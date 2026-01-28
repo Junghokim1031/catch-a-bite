@@ -2,6 +2,8 @@ package com.deliveryapp.catchabite.repository;
 
 import com.deliveryapp.catchabite.entity.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +27,9 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
 
     // 사용자 전용 - 카테고리별 메뉴 조회
     List<Menu> findByMenuCategory_MenuCategoryId(Long menuCategoryId);
+
+    @Query("SELECT DISTINCT m FROM Menu m " +
+           "LEFT JOIN FETCH m.menuOptionGroups mog " +
+           "WHERE m.menuId = :menuId")
+    Optional<Menu> findMenuDetailById(@Param("menuId") Long menuId);;
 }

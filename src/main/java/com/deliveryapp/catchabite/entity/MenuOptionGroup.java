@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Table(name = "menu_option_group")
@@ -30,6 +31,7 @@ public class MenuOptionGroup {
     private Boolean menuOptionGroupRequired;
 
     @OneToMany(mappedBy = "menuOptionGroup", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
     @Builder.Default
     private List<MenuOption> menuOptions = new ArrayList<>();
 

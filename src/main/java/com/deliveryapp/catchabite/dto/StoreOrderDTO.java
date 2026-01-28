@@ -5,6 +5,7 @@ import com.deliveryapp.catchabite.domain.enumtype.OrderStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,6 +19,8 @@ public class StoreOrderDTO {
     private Long appUserId;                 // FK
     private Long storeId;                   // FK
     private Long addressId;                 // FK
+    private String storeName;
+    private List<OrderItemDTO> orderItems;
 
     private String orderAddressSnapshot;
     private Long orderTotalPrice;

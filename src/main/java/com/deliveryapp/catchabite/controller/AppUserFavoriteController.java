@@ -4,7 +4,7 @@ package com.deliveryapp.catchabite.controller;
 import com.deliveryapp.catchabite.dto.FavoriteStoreDTO;
 import com.deliveryapp.catchabite.dto.UserFavoriteStoreResponseDTO;
 import com.deliveryapp.catchabite.service.FavoriteStoreService;
-import com.deliveryapp.catchabite.util.ApiResponse;
+import com.deliveryapp.catchabite.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +21,11 @@ public class AppUserFavoriteController {
     private final FavoriteStoreService favoriteStoreService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<UserFavoriteStoreResponseDTO>>> getMyFavorites(
-            @AuthenticationPrincipal Object principal
-    ) {
+    public ResponseEntity<ApiResponse<List<UserFavoriteStoreResponseDTO>>> getMyFavorites(@AuthenticationPrincipal Object principal) {
         String loginKey = resolveLoginKey(principal);
         if (loginKey == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.fail("UNAUTHORIZED", "로그인이 필요합니다."));
         }
         
         List<UserFavoriteStoreResponseDTO> favorites = favoriteStoreService.getMyFavoriteStores(loginKey);
@@ -41,7 +40,7 @@ public class AppUserFavoriteController {
         String loginKey = resolveLoginKey(principal);
         if (loginKey == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.fail("UNAUTHORIZED"));
+                    .body(ApiResponse.fail("UNAUTHORIZED", "로그인이 필요합니다."));
         }
 
         FavoriteStoreDTO created = favoriteStoreService.addFavorite(dto.getStoreId(), loginKey);
