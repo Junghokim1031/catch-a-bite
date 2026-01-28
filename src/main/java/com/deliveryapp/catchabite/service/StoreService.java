@@ -3,9 +3,12 @@ package com.deliveryapp.catchabite.service;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.StoreDeliveryConditionPatchRequestDTO;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoDTO;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoPatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
 
 import java.util.List;
 
@@ -38,5 +41,13 @@ public interface StoreService {
 
 	// ✅ 추가: 내 매장 목록(요약) 조회
 	List<StoreSummaryDTO> getMyStores(Long storeOwnerId);
+
+	// ✅ 추가: 사업자 정보(대표자/상호/주소/사업자번호)
+	OwnerBusinessInfoDTO getBusinessInfo(Long storeOwnerId, Long storeId);
+	OwnerBusinessInfoDTO patchBusinessInfo(Long storeOwnerId, Long storeId, OwnerBusinessInfoPatchRequestDTO dto);
+
+	// ✅ 추가: 원산지 표기(텍스트)
+	StoreOriginLabelDTO getOriginLabel(Long storeOwnerId, Long storeId);
+	StoreOriginLabelDTO patchOriginLabel(Long storeOwnerId, Long storeId, StoreOriginLabelDTO dto);
 
 }

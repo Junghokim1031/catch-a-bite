@@ -22,6 +22,9 @@ public class MenuDTO {
 	private String menuDescription;
 	private Integer menuPrice;
 
+	// 대표 이미지 URL(목록/상세 표시용)
+	private String menuThumbnailUrl;
+
 	/**
 	 * boolean 네이밍 규칙 반영 (isAvailable 계열)
 	 * 기존 엔티티/컨트롤러 getter 패턴(menuIsAvailable)과도 자연스럽게 맞습니다.

@@ -1,5 +1,6 @@
 package com.deliveryapp.catchabite.dto;
 
+import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

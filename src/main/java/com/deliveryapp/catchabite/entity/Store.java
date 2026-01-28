@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 
@@ -33,8 +34,10 @@ public class Store {
     @Column(name = "store_address", nullable = false, length = 400)
     private String storeAddress;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "store_category", nullable = false, length = 50)
-    private String storeCategory;
+    private StoreCategory storeCategory;
+
 
     @Column(name = "store_phone", nullable = false, length = 10)
     private String storePhone;
@@ -71,6 +74,10 @@ public class Store {
     @Column(name = "store_intro", length = 4000)
     private String storeIntro;
 
+    // 원산지 표기(텍스트)
+    @Column(name = "store_origin_label", length = 4000)
+    private String storeOriginLabel;
+
     /* =========================
        비즈니스 메서드
        ========================= */
@@ -88,7 +95,7 @@ public class Store {
     }
 
     // 가게 기본 정보 "전체" 변경 (PUT용)
-    public void changeStoreInfo(String storeName, String storePhone, String storeAddress, String storeCategory, String storeIntro) {
+    public void changeStoreInfo(String storeName, String storePhone, String storeAddress, StoreCategory storeCategory, String storeIntro) {
         this.storeName = storeName;
         this.storePhone = storePhone;
         this.storeAddress = storeAddress;
@@ -96,10 +103,19 @@ public class Store {
         this.storeIntro = storeIntro;
     }
 
+
     public void changeDeliveryCondition(Integer storeMinOrder, Integer storeMaxDist, Integer storeDeliveryFee) {
         this.storeMinOrder = storeMinOrder;
         this.storeMaxDist = storeMaxDist;
         this.storeDeliveryFee = storeDeliveryFee;
+    }
+
+    public void changeOwnerSnapshotName(String ownerName) {
+        this.storeOwnerName = ownerName;
+    }
+
+    public void changeOriginLabel(String originLabel) {
+        this.storeOriginLabel = originLabel;
     }
 
 

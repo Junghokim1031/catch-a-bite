@@ -39,6 +39,14 @@ public class Menu {
     @Column(name = "menu_is_available", nullable = false)
     private Boolean menuIsAvailable;
 
+    /**
+     * 메뉴 대표 이미지(썸네일) URL
+     * - 목록 조회 성능을 위해 menu 테이블에 직접 보관(denormalize)
+     * - 추가 이미지는 menu_image 테이블에서 관리
+     */
+    @Column(name = "menu_thumbnail_url")
+    private String menuThumbnailUrl;
+
     @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY)
     @Builder.Default
     private List<MenuOptionGroup> menuOptionGroups = new ArrayList<>();
@@ -55,6 +63,10 @@ public class Menu {
 
     public void changeAvailability(Boolean isAvailable) {
         this.menuIsAvailable = isAvailable;
+    }
+
+    public void changeThumbnailUrl(String thumbnailUrl) {
+        this.menuThumbnailUrl = thumbnailUrl;
     }
 
 

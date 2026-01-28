@@ -1,8 +1,12 @@
 package com.deliveryapp.catchabite.service;
 
+import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoDTO;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoPatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.StoreDeliveryConditionPatchRequestDTO;
+import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
 import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
@@ -11,7 +15,6 @@ import com.deliveryapp.catchabite.entity.StoreOwner;
 import com.deliveryapp.catchabite.repository.StoreOwnerRepository;
 import com.deliveryapp.catchabite.repository.StoreRepository;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,7 +28,6 @@ public class StoreServiceImpl implements StoreService {
 	private final StoreRepository storeRepository;
 	private final StoreOwnerRepository storeOwnerRepository;
 
-
 	@Override
 	@Transactional(readOnly = true)
 	public StoreDTO getStoreInfo(Long storeOwnerId, Long storeId) {
@@ -38,7 +40,7 @@ public class StoreServiceImpl implements StoreService {
 				.storeName(store.getStoreName())
 				.storePhone(store.getStorePhone())
 				.storeAddress(store.getStoreAddress())
-				.storeCategory(store.getStoreCategory())
+				.storeCategory(store.getStoreCategory().name())
 				.storeMinOrder(store.getStoreMinOrder())
 				.storeMaxDist(store.getStoreMaxDist())
 				.storeDeliveryFee(store.getStoreDeliveryFee())
@@ -56,12 +58,12 @@ public class StoreServiceImpl implements StoreService {
 				.orElseThrow(() -> new IllegalArgumentException("사업자 정보를 찾을 수 없습니다. storeOwnerId=" + storeOwnerId));
 
 		Store store = Store.builder()
-				.storeOwner(owner) // 추가: FK 세팅(권한체크/조회 쿼리 정상 동작)
-				.storeOwnerName(owner.getStoreOwnerName()) // 추가: store_owner_name not null 대응
+				.storeOwner(owner)
+				.storeOwnerName(owner.getStoreOwnerName())
 				.storeName(dto.getStoreName())
 				.storePhone(dto.getStorePhone())
 				.storeAddress(dto.getStoreAddress())
-				.storeCategory(dto.getStoreCategory())
+				.storeCategory(StoreCategory.from(dto.getStoreCategory()))
 				.storeMinOrder(dto.getStoreMinOrder())
 				.storeMaxDist(dto.getStoreMaxDist())
 				.storeDeliveryFee(dto.getStoreDeliveryFee())
@@ -78,10 +80,14 @@ public class StoreServiceImpl implements StoreService {
 				.storeName(saved.getStoreName())
 				.storePhone(saved.getStorePhone())
 				.storeAddress(saved.getStoreAddress())
-				.storeCategory(saved.getStoreCategory())
+				.storeCategory(saved.getStoreCategory().name())
 				.storeMinOrder(saved.getStoreMinOrder())
 				.storeMaxDist(saved.getStoreMaxDist())
 				.storeDeliveryFee(saved.getStoreDeliveryFee())
+				.storeOpenTime(saved.getStoreOpenTime())
+				.storeCloseTime(saved.getStoreCloseTime())
+				.storeOpenStatus(saved.getStoreOpenStatus())
+				.storeIntro(saved.getStoreIntro())
 				.build();
 	}
 
@@ -91,12 +97,12 @@ public class StoreServiceImpl implements StoreService {
 		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
 				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
 
-		// PUT은 "전체 수정"으로 취급합니다 (유효성 검증상 필수값을 모두 받는 계약)
+		// PUT은 "전체 수정"
 		store.changeStoreInfo(
 				dto.getStoreName(),
 				dto.getStorePhone(),
 				dto.getStoreAddress(),
-				dto.getStoreCategory(),
+				StoreCategory.from(dto.getStoreCategory()),
 				dto.getStoreIntro()
 		);
 
@@ -105,8 +111,14 @@ public class StoreServiceImpl implements StoreService {
 				.storeName(store.getStoreName())
 				.storePhone(store.getStorePhone())
 				.storeAddress(store.getStoreAddress())
-				.storeCategory(store.getStoreCategory())
+				.storeCategory(store.getStoreCategory().name())
+				.storeOpenStatus(store.getStoreOpenStatus())
 				.storeIntro(store.getStoreIntro())
+				.storeMinOrder(store.getStoreMinOrder())
+				.storeMaxDist(store.getStoreMaxDist())
+				.storeDeliveryFee(store.getStoreDeliveryFee())
+				.storeOpenTime(store.getStoreOpenTime())
+				.storeCloseTime(store.getStoreCloseTime())
 				.build();
 	}
 
@@ -119,17 +131,19 @@ public class StoreServiceImpl implements StoreService {
 		String nextName = dto.getStoreName() != null ? dto.getStoreName() : store.getStoreName();
 		String nextPhone = dto.getStorePhone() != null ? dto.getStorePhone() : store.getStorePhone();
 		String nextAddress = dto.getStoreAddress() != null ? dto.getStoreAddress() : store.getStoreAddress();
-		String nextCategory = dto.getStoreCategory() != null ? dto.getStoreCategory() : store.getStoreCategory();
+
+		StoreCategory nextCategory = store.getStoreCategory();
+		if (dto.getStoreCategory() != null) {
+			nextCategory = StoreCategory.from(dto.getStoreCategory());
+		}
+
 		String nextIntro = dto.getStoreIntro() != null ? dto.getStoreIntro() : store.getStoreIntro();
 
-		// ✅ 추가: 배달조건 patch (null-safe)
 		Integer nextMinOrder = dto.getStoreMinOrder() != null ? dto.getStoreMinOrder() : store.getStoreMinOrder();
 		Integer nextMaxDist = dto.getStoreMaxDist() != null ? dto.getStoreMaxDist() : store.getStoreMaxDist();
 		Integer nextDeliveryFee = dto.getStoreDeliveryFee() != null ? dto.getStoreDeliveryFee() : store.getStoreDeliveryFee();
 
 		store.changeStoreInfo(nextName, nextPhone, nextAddress, nextCategory, nextIntro);
-
-		// ✅ 추가: 배달조건 반영(엔티티 메서드 필요)
 		store.changeDeliveryCondition(nextMinOrder, nextMaxDist, nextDeliveryFee);
 
 		return StoreDTO.builder()
@@ -137,12 +151,14 @@ public class StoreServiceImpl implements StoreService {
 				.storeName(store.getStoreName())
 				.storePhone(store.getStorePhone())
 				.storeAddress(store.getStoreAddress())
-				.storeCategory(store.getStoreCategory())
+				.storeCategory(store.getStoreCategory().name())
+				.storeOpenStatus(store.getStoreOpenStatus())
 				.storeIntro(store.getStoreIntro())
-				// ✅ 추가: 배달조건 응답 포함
 				.storeMinOrder(store.getStoreMinOrder())
 				.storeMaxDist(store.getStoreMaxDist())
 				.storeDeliveryFee(store.getStoreDeliveryFee())
+				.storeOpenTime(store.getStoreOpenTime())
+				.storeCloseTime(store.getStoreCloseTime())
 				.build();
 	}
 
@@ -184,7 +200,6 @@ public class StoreServiceImpl implements StoreService {
 		changeStoreStatus(storeOwnerId, storeId, req.getStoreOpenStatus());
 	}
 
-	// ✅ 추가: 내 매장 목록(요약) 조회
 	@Override
 	@Transactional(readOnly = true)
 	public List<StoreSummaryDTO> getMyStores(Long storeOwnerId) {
@@ -195,11 +210,88 @@ public class StoreServiceImpl implements StoreService {
 				.map(s -> StoreSummaryDTO.builder()
 						.storeId(s.getStoreId())
 						.storeName(s.getStoreName())
-						.storeCategory(s.getStoreCategory())
+						.storeCategory(s.getStoreCategory().name())
 						.storeAddress(s.getStoreAddress())
 						.storeOpenStatus(s.getStoreOpenStatus())
 						.build())
 				.toList();
 	}
 
+	// ====== 피그마: 사업자 정보 ======
+	@Override
+	@Transactional(readOnly = true)
+	public OwnerBusinessInfoDTO getBusinessInfo(Long storeOwnerId, Long storeId) {
+		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
+
+		StoreOwner owner = store.getStoreOwner();
+		return OwnerBusinessInfoDTO.builder()
+				.ownerName(owner != null ? owner.getStoreOwnerName() : store.getStoreOwnerName())
+				.businessName(store.getStoreName())
+				.businessAddress(store.getStoreAddress())
+				.businessRegistrationNo(owner != null ? owner.getStoreOwnerBusinessRegistrationNo() : null)
+				.build();
+	}
+
+	@Override
+	public OwnerBusinessInfoDTO patchBusinessInfo(Long storeOwnerId, Long storeId, OwnerBusinessInfoPatchRequestDTO dto) {
+		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
+
+		StoreOwner owner = store.getStoreOwner();
+		if (owner == null) {
+			throw new IllegalStateException("매장에 사업자 계정이 연결되어 있지 않습니다. storeId=" + storeId);
+		}
+
+		// 대표자명
+		if (dto.getOwnerName() != null) {
+			owner.changeName(dto.getOwnerName());
+			store.changeOwnerSnapshotName(dto.getOwnerName());
+		}
+
+		// 상호명/사업자주소는 store에 반영
+		if (dto.getBusinessName() != null || dto.getBusinessAddress() != null) {
+			String nextName = dto.getBusinessName() != null ? dto.getBusinessName() : store.getStoreName();
+			String nextAddress = dto.getBusinessAddress() != null ? dto.getBusinessAddress() : store.getStoreAddress();
+
+			store.changeStoreInfo(
+					nextName,
+					store.getStorePhone(),
+					nextAddress,
+					store.getStoreCategory(),
+					store.getStoreIntro()
+			);
+		}
+
+		// 사업자등록번호
+		if (dto.getBusinessRegistrationNo() != null) {
+			owner.changeBusinessRegistrationNo(dto.getBusinessRegistrationNo());
+		}
+
+		return getBusinessInfo(storeOwnerId, storeId);
+	}
+
+	// ====== 피그마: 원산지 표기(텍스트) ======
+	@Override
+	@Transactional(readOnly = true)
+	public StoreOriginLabelDTO getOriginLabel(Long storeOwnerId, Long storeId) {
+		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
+
+		return StoreOriginLabelDTO.builder()
+				.originLabel(store.getStoreOriginLabel())
+				.build();
+	}
+
+	@Override
+	public StoreOriginLabelDTO patchOriginLabel(Long storeOwnerId, Long storeId, StoreOriginLabelDTO dto) {
+		Store store = storeRepository.findByStoreIdAndStoreOwner_StoreOwnerId(storeId, storeOwnerId)
+				.orElseThrow(() -> new IllegalArgumentException("내 매장이 아닙니다. storeId=" + storeId));
+
+		store.changeOriginLabel(dto.getOriginLabel());
+
+		return StoreOriginLabelDTO.builder()
+				.originLabel(store.getStoreOriginLabel())
+				.build();
+	}
 }

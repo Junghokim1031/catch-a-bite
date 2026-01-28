@@ -41,6 +41,7 @@ public class MenuServiceImpl implements MenuService {
 						.menuName(menu.getMenuName())
 						.menuPrice(menu.getMenuPrice())
 						.menuDescription(menu.getMenuDescription())
+						.menuThumbnailUrl(menu.getMenuThumbnailUrl())
 						.menuIsAvailable(menu.getMenuIsAvailable())
 						.build())
 				.toList();
@@ -62,6 +63,7 @@ public class MenuServiceImpl implements MenuService {
 				.menuName(dto.getMenuName())
 				.menuPrice(dto.getMenuPrice())
 				.menuDescription(dto.getMenuDescription())
+				.menuThumbnailUrl(dto.getMenuThumbnailUrl())
 				.menuIsAvailable(dto.getMenuIsAvailable() == null ? true : dto.getMenuIsAvailable())
 				.build();
 
@@ -74,6 +76,7 @@ public class MenuServiceImpl implements MenuService {
 				.menuName(saved.getMenuName())
 				.menuPrice(saved.getMenuPrice())
 				.menuDescription(saved.getMenuDescription())
+				.menuThumbnailUrl(saved.getMenuThumbnailUrl())
 				.menuIsAvailable(saved.getMenuIsAvailable())
 				.build();
 	}
@@ -100,6 +103,7 @@ public class MenuServiceImpl implements MenuService {
 				.menuName(menu.getMenuName())
 				.menuPrice(menu.getMenuPrice())
 				.menuDescription(menu.getMenuDescription())
+				.menuThumbnailUrl(menu.getMenuThumbnailUrl())
 				.menuIsAvailable(menu.getMenuIsAvailable())
 				.build();
 	}

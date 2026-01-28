@@ -7,6 +7,7 @@ import java.util.Optional;
 
 public interface StoreOwnerRepository extends JpaRepository<StoreOwner, Long> {
 
+    
     Optional<StoreOwner> findByStoreOwnerEmail(String storeOwnerEmail);
 
     boolean existsByStoreOwnerEmail(String storeOwnerEmail);

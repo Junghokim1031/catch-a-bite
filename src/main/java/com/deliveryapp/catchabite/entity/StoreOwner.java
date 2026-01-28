@@ -62,4 +62,13 @@ public class StoreOwner {
     public boolean isActive() {
         return "Y".equalsIgnoreCase(storeOwnerStatus);
     }
+
+    // ====== 변경 메서드(Owner 가게관리용) ======
+    public void changeName(String name) {
+        this.storeOwnerName = name;
+    }
+
+    public void changeBusinessRegistrationNo(String no) {
+        this.storeOwnerBusinessRegistrationNo = no;
+    }
 }

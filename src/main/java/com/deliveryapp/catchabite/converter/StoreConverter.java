@@ -21,7 +21,7 @@ public class StoreConverter {
                 .storeName(store.getStoreName())
                 .storePhone(store.getStorePhone())
                 .storeAddress(store.getStoreAddress())
-                .storeCategory(store.getStoreCategory())
+                .storeCategory(store.getStoreCategory().name())
                 .storeMinOrder(store.getStoreMinOrder())
                 .storeMaxDist(store.getStoreMaxDist())
                 .storeDeliveryFee(store.getStoreDeliveryFee())

@@ -3,9 +3,13 @@ package com.deliveryapp.catchabite.controller;
 import com.deliveryapp.catchabite.common.response.ApiResponse;
 import com.deliveryapp.catchabite.dto.StoreDTO;
 import com.deliveryapp.catchabite.dto.StoreDeliveryConditionPatchRequestDTO;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoDTO;
+import com.deliveryapp.catchabite.dto.OwnerBusinessInfoPatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
+import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
+import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.StoreService;
 
@@ -104,5 +108,37 @@ public class OwnerStoreController {
 		storeService.changeStoreStatus(storeOwnerId, storeId, req);
 
 		return ResponseEntity.ok(ApiResponse.ok(null, "store status updated"));
+	}
+
+	// ====== 피그마: 사업자 정보(대표자/상호/주소/사업자번호) ======
+	@GetMapping("/{storeId}/business-info")
+	public ResponseEntity<ApiResponse<OwnerBusinessInfoDTO>> getBusinessInfo(Principal principal,
+											@PathVariable Long storeId) {
+		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
+		return ResponseEntity.ok(ApiResponse.ok(storeService.getBusinessInfo(storeOwnerId, storeId)));
+	}
+
+	@PatchMapping("/{storeId}/business-info")
+	public ResponseEntity<ApiResponse<OwnerBusinessInfoDTO>> patchBusinessInfo(Principal principal,
+											@PathVariable Long storeId,
+											@RequestBody @Valid OwnerBusinessInfoPatchRequestDTO dto) {
+		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
+		return ResponseEntity.ok(ApiResponse.ok(storeService.patchBusinessInfo(storeOwnerId, storeId, dto)));
+	}
+
+	// ====== 피그마: 원산지 표기(텍스트) ======
+	@GetMapping("/{storeId}/origin-label")
+	public ResponseEntity<ApiResponse<StoreOriginLabelDTO>> getOriginLabel(Principal principal,
+											@PathVariable Long storeId) {
+		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
+		return ResponseEntity.ok(ApiResponse.ok(storeService.getOriginLabel(storeOwnerId, storeId)));
+	}
+
+	@PatchMapping("/{storeId}/origin-label")
+	public ResponseEntity<ApiResponse<StoreOriginLabelDTO>> patchOriginLabel(Principal principal,
+											@PathVariable Long storeId,
+											@RequestBody @Valid StoreOriginLabelDTO dto) {
+		Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
+		return ResponseEntity.ok(ApiResponse.ok(storeService.patchOriginLabel(storeOwnerId, storeId, dto)));
 	}
 }

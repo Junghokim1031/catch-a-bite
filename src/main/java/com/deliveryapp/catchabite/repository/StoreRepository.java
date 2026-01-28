@@ -1,5 +1,6 @@
 package com.deliveryapp.catchabite.repository;
 
+import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import com.deliveryapp.catchabite.entity.Store;
 
@@ -31,12 +32,12 @@ public interface StoreRepository extends JpaRepository<Store, Long> {
     /* 
      * 사용자 - 가게 명 및 음식 분류로 검색
      */ 
-    List<Store> findByStoreNameContainingIgnoreCaseOrStoreCategoryContainingIgnoreCase(String name, String category);
+    List<Store> findByStoreNameContainingIgnoreCase(String keyword);
 
     /* 
      * 사용자 - 음식 분류로 검색
      */
-    List<Store> findByStoreCategory(String category);
+    List<Store> findByStoreCategory(StoreCategory category);
 
     /**
      * 사용자 -  영업 중인 가게 조회
