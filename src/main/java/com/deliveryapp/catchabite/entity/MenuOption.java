@@ -30,6 +30,4 @@ public class MenuOption {
         this.menuOptionName = name;
         this.menuOptionPrice = price;
     }
-
-
 }

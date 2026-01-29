@@ -2,6 +2,7 @@ package com.deliveryapp.catchabite.service;
 
 import com.deliveryapp.catchabite.converter.StoreConverter;
 import com.deliveryapp.catchabite.converter.StoreOrderConverter;
+import com.deliveryapp.catchabite.domain.enumtype.OrderStatus;
 import com.deliveryapp.catchabite.dto.StoreOrderDTO;
 import com.deliveryapp.catchabite.dto.UserStoreOrderRequestDTO;
 import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
@@ -39,8 +40,8 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
     // [기능: 주문 생성]
     // 사용자의 장바구니 내용을 바탕으로 새로운 주문(StoreOrder)을 생성합니다.
     // 1. 필수 데이터(유저, 가게, 주소) 검증
-    // 2. 장바구니 조회 및 가격 계산
-    // 3. 주문 엔티티 및 결제 정보 생성/저장
+    // 2. 장바구니 조회 및 옵션 포함 가격 계산
+    // 3. 주문 엔티티(OrderItem, OrderOption 포함) 생성 및 저장
     // 4. 장바구니 비우기
     // =====================================================================
     @Override
@@ -58,10 +59,13 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
         // 주문 생성에 반드시 필요한 AppUser(사용자), Store(가게), Address(배송지) 정보를 DB에서 찾습니다.
         // 만약 ID에 해당하는 데이터가 없다면 예외(Exception)를 발생시켜 로직을 중단합니다.
         // =====================================================================
+        @SuppressWarnings("null")
         AppUser appUser = appUserRepository.findById(dto.getAppUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found: ID " + dto.getAppUserId()));
+        @SuppressWarnings("null")
         Store store = storeRepository.findById(dto.getStoreId())
                 .orElseThrow(() -> new IllegalArgumentException("Store not found: ID " + dto.getStoreId()));
+        @SuppressWarnings("null")
         Address address = addressRepository.findById(dto.getAddressId())
                 .orElseThrow(() -> new IllegalArgumentException("Address not found: ID " + dto.getAddressId()));
 
@@ -79,33 +83,67 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
         }
 
         // =====================================================================
-        // [단계 3] 주문 항목(OrderItem) 생성 및 총 금액 계산
-        // 장바구니에 담긴 각 메뉴(CartItem)를 반복문으로 돌면서 '주문 항목(OrderItem)'으로 변환합니다.
-        // 동시에 (단가 x 수량)을 계산하여 총 음식 금액(totalFoodPrice)을 산출합니다.
+        // [단계 3] 주문 항목(OrderItem) 및 옵션(OrderOption) 데이터 준비
+        // OrderItem 엔티티는 Menu 객체 자체를 참조하지 않고, 
+        // 주문 시점의 '메뉴명(Name)'과 '가격(Price)'을 스냅샷으로 저장합니다.
         // =====================================================================
         List<OrderItem> orderItems = new ArrayList<>();
         long totalFoodPrice = 0L;
         
         for (CartItem cartItem : cartItems) {
-            long price = cartItem.getMenu().getMenuPrice().longValue(); // 메뉴 단가
-            long qty = cartItem.getCartItemQuantity().longValue();      // 주문 수량
-            totalFoodPrice += (price * qty);                            // 총액 누적
-
-            // OrderItem 객체를 생성합니다.
-            // 주의: 아직 부모 객체인 storeOrder는 생성되지 않았으므로 null로 두거나 나중에 연결합니다.
-            // 여기서는 빌더 패턴을 사용하여 데이터를 채워넣습니다.
-            orderItems.add(OrderItem.builder()
-                    .storeOrder(null) // 아래 [단계 4]에서 연결됨
-                    .orderItemName(cartItem.getMenu().getMenuName())
-                    .orderItemPrice(price)
+            long menuPrice = cartItem.getMenu().getMenuPrice().longValue(); // 메뉴 기본 단가
+            long qty = cartItem.getCartItemQuantity().longValue();          // 주문 수량
+            
+            // ---------------------------------------------------------------------
+            //  OrderItem 생성
+            // CartItem의 Menu 엔티티에서 이름을 가져와 스냅샷(orderItemName)으로 저장합니다.
+            // .menu(cartItem.getMenu())는 OrderItem 엔티티에 필드가 없으므로 제거되었습니다.
+            // ---------------------------------------------------------------------
+            OrderItem orderItem = OrderItem.builder()
+                    .storeOrder(null) // [단계 4]에서 부모 주문 객체 연결
+                    .orderItemName(cartItem.getMenu().getMenuName()) // 메뉴명 스냅샷
+                    .orderItemPrice(menuPrice) // 가격 스냅샷
                     .orderItemQuantity(qty)
-                    .build());
+                    .orderOptions(new ArrayList<>()) // 옵션 리스트 초기화
+                    .build();
+
+            // ---------------------------------------------------------------------
+            // 메뉴 옵션 처리 (CartItemOption -> OrderOption)
+            // ---------------------------------------------------------------------
+            long optionsPriceSum = 0L;
+
+            if (cartItem.getCartItemOptions() != null && !cartItem.getCartItemOptions().isEmpty()) {
+                for (CartItemOption cartOption : cartItem.getCartItemOptions()) {
+                    
+                    // CartItemOption의 가격(Integer) -> OrderOption(Long) 변환
+                    long optionPrice = (cartOption.getMenuOption().getMenuOptionPrice() != null) 
+                            ? cartOption.getMenuOption().getMenuOptionPrice().longValue() 
+                            : 0L;
+
+                    OrderOption orderOption = OrderOption.builder()
+                            .orderItem(orderItem) // 필수: 부모 OrderItem 연결
+                            .orderOptionName(cartOption.getMenuOption().getMenuOptionName()) // 옵션명 스냅샷
+                            .orderOptionExtraPrice(optionPrice) // 옵션 가격 스냅샷
+                            .build();
+                    
+                    // OrderItem 내의 리스트에 추가 (Cascade 저장용)
+                    orderItem.getOrderOptions().add(orderOption);
+                    
+                    // 가격 합산
+                    optionsPriceSum += optionPrice;
+                }
+            }
+
+            // 해당 아이템 라인의 총 가격 계산: (메뉴단가 + 옵션총액) * 수량
+            long itemTotalPrice = (menuPrice + optionsPriceSum) * qty;
+            totalFoodPrice += itemTotalPrice; 
+
+            orderItems.add(orderItem);
         }
 
         // 최종 금액 = 음식 총액 + 가게 배달팁
-        long finalTotalPrice = totalFoodPrice + store.getStoreDeliveryFee();
-        // Store 내 배달비는 Integer이며 StoreOrder에는 Long이라 변경
         long finalDeliveryFee = store.getStoreDeliveryFee();
+        long finalTotalPrice = totalFoodPrice + finalDeliveryFee;
 
         // =====================================================================
         // [단계 4] 주문(StoreOrder) 객체 생성 및 DB 저장
@@ -117,25 +155,22 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
                 .appUser(appUser)
                 .store(store)
                 .address(address)
-                .orderAddressSnapshot(address.getAddressDetail()) // 주소가 변경될 수 있으므로 현재 주소를 스냅샷(문자열)으로 저장
+                .orderAddressSnapshot(address.getAddressDetail()) // 주소 스냅샷
                 .orderDeliveryFee(finalDeliveryFee)
                 .orderTotalPrice(finalTotalPrice)
-                .orderStatus(com.deliveryapp.catchabite.domain.enumtype.OrderStatus.PAYMENTINPROGRESS) // 초기 상태: 대기중
-                .orderDate(LocalDateTime.now()) // 주문 시각: 현재 시간
-                .orderItems(new ArrayList<>())  // 빈 리스트로 초기화 (아래에서 추가됨)
+                .orderStatus(OrderStatus.PAYMENTINPROGRESS)
+                .orderDate(LocalDateTime.now())
+                .orderItems(new ArrayList<>())
                 .build();
         
-        // 생성된 주문 객체(finalOrder)를 각 주문 항목(OrderItem)에 연결합니다.
-        // 이것이 없으면 OrderItem이 어떤 주문에 속하는지 DB가 알 수 없습니다.
+        // 생성된 StoreOrder를 각 OrderItem에 연결 (양방향 관계 설정)
         for(OrderItem item : orderItems) {
             item.setStoreOrder(finalOrder);
         }
         
-        // 주문 객체 내부의 리스트에도 항목들을 추가합니다.
-        // CascadeType.ALL 설정 덕분에 finalOrder만 저장해도 items가 같이 저장됩니다.
+        // StoreOrder에 아이템 리스트 추가 (CascadeType.ALL로 함께 저장됨)
         finalOrder.getOrderItems().addAll(orderItems);
-
-        // DB에 저장 (INSERT 쿼리 발생)
+        
         StoreOrder savedOrder = storeOrderRepository.save(finalOrder);
 
         // =====================================================================
@@ -145,29 +180,20 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
         // =====================================================================
         if (dto.getPaymentMethod() != null) {
             Payment payment = Payment.builder()
-                    .storeOrder(savedOrder)         // 위에서 저장한 주문과 연결
+                    .storeOrder(savedOrder)
                     .paymentMethod(dto.getPaymentMethod())
                     .paymentAmount(finalTotalPrice)
                     .paymentStatus("PENDING")
-                    .paymentPaidAt(LocalDateTime.now()) // 임시 시간
+                    .paymentPaidAt(LocalDateTime.now())
                     .build();
             paymentRepository.save(payment);
         }
 
         // =====================================================================
-        // [단계 6] (TODO) 웹소켓 메시지 전송
-        // 가게 사장님에게 실시간 주문 알림을 보내는 코드가 위치할 곳입니다.
-        // DB에 저장되지 않은 요청사항(storeRequest, riderRequest)은 이 시점에 전송되어야 합니다.
-        // =====================================================================
-        // log.info("WS Message: StoreReq={}, RiderReq={}", dto.getStoreRequest(), dto.getRiderRequest());
-
-        // =====================================================================
-        // [단계 7] 장바구니 비우기
-        // 주문이 성공적으로 생성되었으므로, 더 이상 필요 없는 장바구니 항목을 삭제합니다.
+        // [단계 6] 장바구니 비우기
         // =====================================================================
         cartRepository.delete(cart);
 
-        // 최종적으로 생성된 주문 정보를 DTO로 변환하여 반환합니다.
         return storeOrderConverter.toDto(savedOrder);
     }
 
