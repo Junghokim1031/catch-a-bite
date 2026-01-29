@@ -25,6 +25,11 @@ public class OwnerOrderServiceImpl implements OwnerOrderService {
     private final StoreRepository storeRepository;
     private final StoreOrderRepository storeOrderRepository;
 
+    private static final List<OrderStatus> HIDDEN_STATUSES = List.of(
+            OrderStatus.PAYMENTINPROGRESS,
+            OrderStatus.PAYMENTFAILED
+    );
+
     @Override
     @Transactional(readOnly = true)
     public PageResponseDTO<OwnerOrderDTO> listOrders(
@@ -44,15 +49,27 @@ public class OwnerOrderServiceImpl implements OwnerOrderService {
         Page<StoreOrder> page;
 
         if (status == null || status.isBlank()) {
+            // [수정] 상태 필터가 없을 경우: '숨김 상태'를 제외한 모든 주문을 조회합니다.
             if (hasDateFilter) {
                 if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
                 if (toDt == null) toDt = LocalDateTime.now().plusYears(100);
-                page = storeOrderRepository.findByStore_StoreIdAndOrderDateBetween(storeId, fromDt, toDt, pageable);
+                
+                page = storeOrderRepository.findByStore_StoreIdAndOrderStatusNotInAndOrderDateBetween(
+                        storeId, HIDDEN_STATUSES, fromDt, toDt, pageable
+                );
             } else {
-                page = storeOrderRepository.findByStore_StoreId(storeId, pageable);
+                page = storeOrderRepository.findByStore_StoreIdAndOrderStatusNotIn(
+                        storeId, HIDDEN_STATUSES, pageable
+                );
             }
         } else {
+            // [수정] 특정 상태 필터가 요청된 경우
             OrderStatus orderStatus = parseStatus(status);
+
+            // 요청된 상태가 숨김 대상이라면 빈 페이지 반환 (또는 예외 처리)
+            if (HIDDEN_STATUSES.contains(orderStatus)) {
+                return PageResponseDTO.from(Page.empty(pageable));
+            }
 
             if (hasDateFilter) {
                 if (fromDt == null) fromDt = LocalDate.of(1970, 1, 1).atStartOfDay();
@@ -86,6 +103,11 @@ public class OwnerOrderServiceImpl implements OwnerOrderService {
 
         StoreOrder order = storeOrderRepository.findDetailByOrderIdAndStoreId(orderId, storeId)
                 .orElseThrow(() -> new IllegalArgumentException("order not found"));
+
+        // 상세 조회 시에도 숨김 상태인 경우 접근 차단
+        if (HIDDEN_STATUSES.contains(order.getOrderStatus())) {
+            throw new IllegalArgumentException("order not accessible");
+        }
 
         List<OwnerOrderDTO.ItemDTO> items = (order.getOrderItems() == null)
                 ? Collections.emptyList()

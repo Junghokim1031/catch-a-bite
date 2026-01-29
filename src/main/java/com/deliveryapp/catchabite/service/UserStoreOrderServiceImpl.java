@@ -120,7 +120,7 @@ public class UserStoreOrderServiceImpl implements UserStoreOrderService {
                 .orderAddressSnapshot(address.getAddressDetail()) // 주소가 변경될 수 있으므로 현재 주소를 스냅샷(문자열)으로 저장
                 .orderDeliveryFee(finalDeliveryFee)
                 .orderTotalPrice(finalTotalPrice)
-                .orderStatus(com.deliveryapp.catchabite.domain.enumtype.OrderStatus.PENDING) // 초기 상태: 대기중
+                .orderStatus(com.deliveryapp.catchabite.domain.enumtype.OrderStatus.PAYMENTINPROGRESS) // 초기 상태: 대기중
                 .orderDate(LocalDateTime.now()) // 주문 시각: 현재 시간
                 .orderItems(new ArrayList<>())  // 빈 리스트로 초기화 (아래에서 추가됨)
                 .build();
