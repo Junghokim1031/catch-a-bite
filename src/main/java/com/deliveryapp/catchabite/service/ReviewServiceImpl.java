@@ -29,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional  // Overrides read-only for write
     public ReviewDTO createReview(Long storeOrderId, BigDecimal reviewRating, String reviewContent) {
         // 1. Fetch and validate order (ensures exists, handles lazy init safely)
-        if(storeOrderId == null || storeOrderId > 0){
+        if(storeOrderId == null || storeOrderId <= 0){
             throw new IllegalArgumentException("ReviewServiceImpl - createReview - storeOrderId " + storeOrderId + "가 NULL입니다.");
         }
         StoreOrder order = storeOrderRepository.findById(storeOrderId)
@@ -66,7 +66,7 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public ReviewDTO getReview(Long reviewId) {
-        if(reviewId == null || reviewId > 0){
+        if(reviewId == null || reviewId <= 0){
             throw new IllegalArgumentException("ReviewServiceImpl - getReview - reviewId " + reviewId + "가 NULL입니다.");
         }
         Review review = reviewRepository.findById(reviewId)
@@ -79,7 +79,7 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional
     public ReviewDTO updateReview(Long reviewId, ReviewDTO dto) {
         // NULL 확인
-        if(reviewId == null || reviewId > 0){
+        if(reviewId == null || reviewId <= 0){
             throw new IllegalArgumentException("ReviewServiceImpl - updateReview - reviewId " + reviewId + "가 NULL입니다.");
         }
         // 문제가 없다면 Review 받아옴.
@@ -106,6 +106,9 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     @Transactional
     public void deleteReview(Long storeOrderId) {
+        if(storeOrderId == null || storeOrderId <= 0){
+             throw new IllegalArgumentException("ReviewServiceImpl - deleteReview - 유효하지 않은 storeOrderId입니다.");
+        }
         
         // Find review via order
         Review review = reviewRepository.findByStoreOrderOrderId(storeOrderId)

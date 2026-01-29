@@ -4,9 +4,12 @@ import com.deliveryapp.catchabite.converter.CartItemConverter;
 import com.deliveryapp.catchabite.dto.CartItemDTO;
 import com.deliveryapp.catchabite.entity.Cart;
 import com.deliveryapp.catchabite.entity.CartItem;
+import com.deliveryapp.catchabite.entity.CartItemOption;
 import com.deliveryapp.catchabite.entity.Menu;
+import com.deliveryapp.catchabite.entity.MenuOption;
 import com.deliveryapp.catchabite.repository.CartItemRepository;
 import com.deliveryapp.catchabite.repository.CartRepository;
+import com.deliveryapp.catchabite.repository.MenuOptionRepository;
 import com.deliveryapp.catchabite.repository.MenuRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,62 +28,49 @@ public class CartItemServiceImpl implements CartItemService {
     private final CartItemRepository cartItemRepository;
     private final CartRepository cartRepository;
     private final MenuRepository menuRepository;
+    private final MenuOptionRepository menuOptionRepository;
     private final CartItemConverter cartItemConverter;
 
-    // [수정] quantity 파라미터 추가 반영
     // 사용자가 요청한 수량만큼 장바구니에 담기 위해 quantity 인자를 추가하고 로직에 반영함.
     @Override
     @Transactional
-    public CartItemDTO createCartItem(Long cartId, Long menuId, Integer quantity) {
-        // Parameter 확인
-        // Long 및 Integer Null 체크
-        if (cartId == null) {
-            throw new IllegalArgumentException("카트Id가 null입니다. CartItemServiceImpl - createCartItem");
-        }
-        if (menuId == null) {
-            throw new IllegalArgumentException("menuId가 null입니다. CartItemServiceImpl - createCartItem");
-        }
-        // quantity가 null이거나 0 이하라면 기본값 1로 설정
+    public CartItemDTO createCartItem(Long cartId, Long menuId, Integer quantity, List<Long> optionIds) {
+        // 1. 기본 유효성 검사
+        if (cartId == null || menuId == null) throw new IllegalArgumentException("필수값 누락");
         int validQuantity = (quantity == null || quantity <= 0) ? 1 : quantity;
 
-        // 카트 및 Menu를 build함.
         Cart cartRef = cartRepository.findById(cartId)
-            .orElseThrow(() -> new IllegalArgumentException("카트가 존재하지 않습니다. \n" +
-                "CartServiceImpl - createCartItem\ncartId=" + cartId));
-
+            .orElseThrow(() -> new IllegalArgumentException("장바구니 없음"));
         Menu menuRef = menuRepository.findById(menuId)
-            .orElseThrow(() -> new IllegalArgumentException("메뉴가 존재하지 않습니다. \n" +
-                "CartServiceImpl - createCartItem\nmenuId=" + menuId));
+            .orElseThrow(() -> new IllegalArgumentException("메뉴 없음"));
 
-        // 이미 담긴 메뉴면 수량 합산, 없으면 생성
-        // 같은 메뉴가 이미 장바구니에 있는지 확인
-        CartItem existingItem = cartItemRepository.findByCart_CartIdAndMenu_MenuId(cartId, menuId).orElse(null);
+        // 2. 같은 메뉴라도 옵션이 다르면 별개의 아이템으로 봐야 함
+        // 기존의 findByCart_CartIdAndMenu_MenuId 로직은 옵션을 고려하지 않으므로, 
+        // 옵션이 있는 경우 '무조건 새로 생성'하는 것이 안전합니다.        
+        CartItem newItem = CartItem.builder()
+            .cart(cartRef)
+            .menu(menuRef)
+            .cartItemQuantity(validQuantity)
+            .build();
         
-        CartItem savedItem;
-        if (existingItem != null) {
-            // 이미 존재하면 수량 증가
-            existingItem.changeQuantity(existingItem.getCartItemQuantity() + validQuantity);
-            savedItem = existingItem;
-        } else {
-            // 없으면 새로 생성
-            CartItem newItem = CartItem.builder()
-                .cart(cartRef)
-                .menu(menuRef)
-                .cartItemQuantity(validQuantity) // 요청받은 수량 사용
-                .build();
-            savedItem = cartItemRepository.save(newItem);
-        }
+        // 3. 옵션 저장 로직
+        if (optionIds != null && !optionIds.isEmpty()) {
+            List<MenuOption> options = menuOptionRepository.findAllById(optionIds);
             
-        CartItemDTO result = cartItemConverter.toDto(savedItem);
-        
-        // 로깅 하는 위치
-        log.warn("==============================");
-        log.warn(savedItem);
-        log.warn(result);
-        log.warn("==============================");
+            for (MenuOption option : options) {
+                CartItemOption cartItemOption = CartItemOption.builder()
+                        .cartItem(newItem) // 부모 설정
+                        .menuOption(option)
+                        .build();
+                newItem.addOption(cartItemOption); // CascadeType.ALL에 의해 함께 저장됨
+            }
+        }
 
-        // return
-        return result;
+        // 4. 저장 후 반환
+        // 함수 내 에서 생성하기 때문에 null 막음.
+        @SuppressWarnings("null")
+        CartItem savedItem = cartItemRepository.save(newItem);
+        return cartItemConverter.toDto(savedItem);
     }
 
     @Override

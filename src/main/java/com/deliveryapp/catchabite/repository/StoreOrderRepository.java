@@ -37,13 +37,12 @@ public interface StoreOrderRepository extends JpaRepository<StoreOrder, Long> {
             Pageable pageable
     );
 
-    // 주문 상세(헤더 + items + options) 한 번에 가져오기
+    // 주문 상세(헤더 + items) 한 번에 가져오기 (options는 batch fetch로 로딩)
     @Query("""
         select distinct o
         from StoreOrder o
         left join fetch o.orderItems oi
-        left join fetch oi.orderOptions oo
-        where o.orderId = :orderId
+                where o.orderId = :orderId
           and o.store.storeId = :storeId
     """)
     Optional<StoreOrder> findDetailByOrderIdAndStoreId(

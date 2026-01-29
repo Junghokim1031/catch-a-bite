@@ -1,5 +1,8 @@
 package com.deliveryapp.catchabite.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +26,7 @@ public class CartItem {
     @JoinColumn(name = "cart_id", nullable = false)
     private Cart cart;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="menu_id", nullable = false)
     private Menu menu;
 
@@ -31,8 +34,15 @@ public class CartItem {
     @Builder.Default
     private Integer cartItemQuantity = 1;
 
+    @OneToMany(mappedBy = "cartItem", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<CartItemOption> cartItemOptions = new ArrayList<>();
+
     public void changeQuantity(Integer cartItemQuantity) {
         this.cartItemQuantity = cartItemQuantity;
     }
 
+    public void addOption(CartItemOption option) {
+        this.cartItemOptions.add(option);
+    }
 }

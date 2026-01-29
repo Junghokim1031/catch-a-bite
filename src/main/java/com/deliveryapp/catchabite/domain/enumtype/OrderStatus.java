@@ -7,7 +7,8 @@ public enum OrderStatus {
     COOKED("cooked"),
     PAYMENTCONFIRMED("payment_confirmed"),
     DELIVERED("delivered"),
-    REJECTED("rejected");
+    REJECTED("rejected"),
+    DELIVERING("delivering");
 
     private final String value;
 
