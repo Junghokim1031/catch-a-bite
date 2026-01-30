@@ -18,6 +18,7 @@ public class ReviewDTO {
     private Long storeOrderId;              //FK
     private Long appUserId;                 //FK
     private Long storeId;                   //FK
+    private String authorNickname;
     private BigDecimal reviewRating;
     private String reviewContent;
     private LocalDateTime reviewCreatedAt;

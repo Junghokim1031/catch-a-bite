@@ -11,6 +11,7 @@ package com.deliveryapp.catchabite.controller;
  */
 
 import com.deliveryapp.catchabite.common.response.ApiResponse;
+import com.deliveryapp.catchabite.dto.PageResponseDTO;
 import com.deliveryapp.catchabite.dto.ReviewDTO;
 import com.deliveryapp.catchabite.service.ReviewService;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,19 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable Long reviewId) {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.ok(ApiResponse.ok(null,"Review deleted successfully"));
+    }
+
+    /**
+     * 특정 가게의 리뷰 목록을 조회합니다.
+     * GET /api/v1/appuser/reviews/store/{storeId}
+     */
+    @GetMapping("/store/{storeId}")
+    public ResponseEntity<ApiResponse<PageResponseDTO<ReviewDTO>>> getStoreReviews(
+            @PathVariable Long storeId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        PageResponseDTO<ReviewDTO> response = reviewService.getStoreReviews(storeId, page, size);
+        return ResponseEntity.ok(ApiResponse.ok(response));
     }
 }

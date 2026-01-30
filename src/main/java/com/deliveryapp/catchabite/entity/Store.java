@@ -118,7 +118,9 @@ public class Store {
         this.storeOriginLabel = originLabel;
     }
 
-
+    public void updateStoreRating(Double newRating) {
+        this.storeRating = newRating;
+    }
 
     /* =========================
        연관관계
