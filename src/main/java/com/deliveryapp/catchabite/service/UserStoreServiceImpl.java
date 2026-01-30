@@ -45,7 +45,7 @@ public class UserStoreServiceImpl implements UserStoreService {
 
 	@Override
 	public List<UserStoreSummaryDTO> searchStores(String keyword) {
-		// ✅ 원본은 store_category "contains" 검색이었는데,
+		// 원본은 store_category "contains" 검색이었는데,
 		// enum 전환 후에는 keyword가 카테고리 값과 일치할 때만 카테고리 필터로 동작하게 처리합니다.
 
 		List<Store> byName = storeRepository.findByStoreNameContainingIgnoreCase(keyword);
@@ -204,6 +204,7 @@ public class UserStoreServiceImpl implements UserStoreService {
                 .rating(store.getStoreRating())
                 .reviewCount(reviewCount)
                 .storeIntro(store.getStoreIntro())
+                .storeOriginLabel(store.getStoreOriginLabel())
                 .storePhone(store.getStorePhone())
                 .storeAddress(store.getStoreAddress())
                 .storeCategory(store.getStoreCategory().name())

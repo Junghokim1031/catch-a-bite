@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Collection;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -22,11 +23,31 @@ public interface StoreOrderRepository extends JpaRepository<StoreOrder, Long> {
     // 페이징 기본(상태/기간 없음)
     Page<StoreOrder> findByStore_StoreId(Long storeId, Pageable pageable);
 
+    // ========================================================================================
+    // 특정 상태 제외 조회 (PAYMENTINPROGRESS, PAYMENTFAILED 제외용)
+    // ========================================================================================
+    Page<StoreOrder> findByStore_StoreIdAndOrderStatusNotIn(
+            Long storeId, 
+            Collection<OrderStatus> statuses, 
+            Pageable pageable
+    );
+
     // 페이징 + 상태
     Page<StoreOrder> findByStore_StoreIdAndOrderStatus(Long storeId, OrderStatus orderStatus, Pageable pageable);
 
     // 페이징 + 기간
     Page<StoreOrder> findByStore_StoreIdAndOrderDateBetween(Long storeId, LocalDateTime from, LocalDateTime to, Pageable pageable);
+
+    // ========================================================================================
+    // 특정 상태 제외 + 기간 조회
+    // ========================================================================================
+    Page<StoreOrder> findByStore_StoreIdAndOrderStatusNotInAndOrderDateBetween(
+            Long storeId,
+            Collection<OrderStatus> statuses,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable
+    );
 
     // 페이징 + 상태 + 기간
     Page<StoreOrder> findByStore_StoreIdAndOrderStatusAndOrderDateBetween(

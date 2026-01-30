@@ -15,11 +15,15 @@ public class ReviewConverter {
     public ReviewDTO toDto(Review entity) {
         if (entity == null) return null;
         
+        // AppUser가 Lazy Loading일 수 있으므로 null 체크
+        String nickname = (entity.getAppUser() != null) ? entity.getAppUser().getAppUserNickname() : "알 수 없음";
+
         return ReviewDTO.builder()
                 .reviewId(entity.getReviewId())
                 .storeOrderId(entity.getStoreOrder() != null ? entity.getStoreOrder().getOrderId() : null)
                 .appUserId(entity.getAppUser() != null ? entity.getAppUser().getAppUserId() : null)
                 .storeId(entity.getStore() != null ? entity.getStore().getStoreId() : null)
+                .authorNickname(nickname)
                 .reviewRating(entity.getReviewRating())
                 .reviewContent(entity.getReviewContent())
                 .reviewCreatedAt(entity.getReviewCreatedAt())

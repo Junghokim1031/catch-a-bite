@@ -2,13 +2,15 @@ package com.deliveryapp.catchabite.domain.enumtype;
 
 public enum OrderStatus {
 
+    PAYMENTINPROGRESS("payment_in_progress"),
+    PAYMENTFAILED("payment_failed"),
+    PAYMENTCONFIRMED("payment_confirmed"),
     PENDING("pending"),
+    REJECTED("rejected"),
     COOKING("cooking"),
     COOKED("cooked"),
-    PAYMENTCONFIRMED("payment_confirmed"),
-    DELIVERED("delivered"),
-    REJECTED("rejected"),
-    DELIVERING("delivering");
+    DELIVERING("delivering"),
+    DELIVERED("delivered");
 
     private final String value;
 

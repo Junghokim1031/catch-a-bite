@@ -25,6 +25,4 @@ public interface OwnerOrderService {
     void rejectOrder(Long storeOwnerId, Long storeId, Long orderId, String reason);
 
     void markCooked(Long storeOwnerId, Long storeId, Long orderId);
-
-    void markDelivered(Long storeOwnerId, Long storeId, Long orderId);
 }

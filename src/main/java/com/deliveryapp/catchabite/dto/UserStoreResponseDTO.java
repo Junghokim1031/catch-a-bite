@@ -23,6 +23,7 @@ public class UserStoreResponseDTO {
 
     // --- Details ---
     private String storeIntro;
+    private String storeOriginLabel;
     private String storePhone;
     private String storeAddress;
     private String storeCategory;

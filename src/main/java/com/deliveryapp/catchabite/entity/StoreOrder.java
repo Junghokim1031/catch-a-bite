@@ -53,18 +53,22 @@ public class StoreOrder {
     @Column(name = "order_date", nullable = false)
     private LocalDateTime orderDate;
 
-    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
+    // =========================================================================
+    // 주문(StoreOrder)이 삭제되면 연결된 Payment, Review, OrderDelivery도 함께 삭제되도록 설정합니다.
+    // 이를 통해 TransientObjectException 및 FK 제약 조건 위반을 방지합니다.
+    // =========================================================================
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Payment payment;
 
-    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Review review;
 
-    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "storeOrder", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private OrderDelivery orderDelivery;
 
     @OneToMany(mappedBy = "storeOrder", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<OrderItem> orderItems = new ArrayList<>(); // ✅ 단수 -> 복수 권장
+    private List<OrderItem> orderItems = new ArrayList<>();
 
     /**
      * 주문 최초 저장(INSERT) 직전에 orderDeliveryFee, orderStatus, 및 orderDate를 자동 세팅합니다.
@@ -73,7 +77,7 @@ public class StoreOrder {
     @PrePersist
     public void prePersist() {
         if (this.orderDeliveryFee == null) this.orderDeliveryFee = 0L;
-        if (this.orderStatus == null) this.orderStatus = OrderStatus.PENDING;
+        if (this.orderStatus == null) this.orderStatus = OrderStatus.PAYMENTINPROGRESS;
         if (this.orderDate == null) this.orderDate = LocalDateTime.now();
     }
 
