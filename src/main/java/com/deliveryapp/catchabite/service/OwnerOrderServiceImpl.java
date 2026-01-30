@@ -180,18 +180,6 @@ public class OwnerOrderServiceImpl implements OwnerOrderService {
         order.changeStatus(OrderStatus.COOKED);
     }
 
-    @Override
-    public void markDelivered(Long storeOwnerId, Long storeId, Long orderId) {
-
-        StoreOrder order = getOwnedOrder(storeOwnerId, storeId, orderId);
-
-        if (order.getOrderStatus() != OrderStatus.COOKED) {
-            throw new IllegalArgumentException("invalid order status");
-        }
-
-        order.changeStatus(OrderStatus.DELIVERED);
-    }
-
     // -------------------------
     // private helpers
     // -------------------------

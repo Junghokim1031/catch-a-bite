@@ -168,7 +168,7 @@ public class PaymentVerificationService {
             요청에 따라 'PENDING' 상태로 설정합니다.
             ========================================================================================
              */
-			order.changeStatus(OrderStatus.PAYMENTCONFIRMED);
+			order.changeStatus(OrderStatus.PENDING);
 			storeOrderRepository.save(order);
 
 			/*

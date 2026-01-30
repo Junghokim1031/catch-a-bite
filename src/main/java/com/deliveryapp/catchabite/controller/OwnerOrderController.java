@@ -96,17 +96,5 @@ public class OwnerOrderController {
         Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
         ownerOrderService.markCooked(storeOwnerId, storeId, orderId);
         return ResponseEntity.ok(ApiResponse.ok(null, "order cooked"));
-    }
-
-    // 9-6) 배달 완료
-    @PatchMapping("/{orderId}/delivered")
-    public ResponseEntity<ApiResponse<Object>> delivered(
-            Principal principal,
-            @PathVariable Long storeId,
-            @PathVariable Long orderId
-    ) {
-        Long storeOwnerId = ownerContext.requireStoreOwnerId(principal);
-        ownerOrderService.markDelivered(storeOwnerId, storeId, orderId);
-        return ResponseEntity.ok(ApiResponse.ok(null, "order delivered"));
-    }
+    }    
 }
