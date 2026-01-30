@@ -122,10 +122,12 @@ public class UserStoreServiceImpl implements UserStoreService {
         
         // 4-3. 조회된 이미지를 Map으로 변환 (Key: MenuId, Value: ImageUrl)
         Map<Long, String> imageMap = menuImages.stream()
-            .collect(Collectors.toMap(
-                img -> img.getMenu().getMenuId(),
-                MenuImage::getMenuImageUrl
-            ));
+        .sorted((a, b) -> Boolean.compare(b.getMenuImageIsMain(), a.getMenuImageIsMain())) 
+        .collect(Collectors.toMap(
+            img -> img.getMenu().getMenuId(),
+            MenuImage::getMenuImageUrl,
+            (existing, replacement) -> existing // 중복 시 첫 번째(정렬에 의해 대표이미지) 사용
+        ));
 
         // =================================================================
         // Step 5. 카테고리 및 메뉴 DTO 변환 (For 반복문 사용)
