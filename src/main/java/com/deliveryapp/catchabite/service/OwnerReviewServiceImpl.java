@@ -50,6 +50,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
                     .reviewId(r.getReviewId())
                     .orderId(r.getStoreOrder() == null ? null : r.getStoreOrder().getOrderId())
                     .appUserId(r.getAppUser() == null ? null : r.getAppUser().getAppUserId())
+                    .authorNickname(r.getAppUser() == null ? null : r.getAppUser().getAppUserNickname())
                     .storeId(r.getStore() == null ? null : r.getStore().getStoreId())
                     .reviewRating(r.getReviewRating())
                     .reviewContent(r.getReviewContent())
