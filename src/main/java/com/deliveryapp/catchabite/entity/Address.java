@@ -77,4 +77,10 @@ public class Address {
     public void deleteAddress(){
         this.addressVisible = "N";
     }
+
+    @PrePersist
+    void prePersist() {
+        if (addressCreatedDate == null) addressCreatedDate = LocalDate.now(); // 생성일 자동
+    }
+
 }
