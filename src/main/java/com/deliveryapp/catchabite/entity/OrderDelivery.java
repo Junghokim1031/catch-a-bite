@@ -66,7 +66,7 @@ public class OrderDelivery {
     private LocalDateTime orderDeliveryCompleteTime;
 
     // 거리/시간(분)
-    @Column(name = "order_delivery_distance", precision = 10, scale = 2)
+    @Column(name = "order_delivery_distance", nullable = true, precision = 10, scale = 2)
     private BigDecimal orderDeliveryDistance;
 
     @Column(name = "order_delivery_est_time")
@@ -86,17 +86,17 @@ public class OrderDelivery {
 
     /* 01/26 추가한 부분 - 위도, 경도 *************************************************/
     // (매장 좌표)
-    @Column(name = "store_latitude",precision = 10, scale = 7)
+    @Column(name = "store_latitude", nullable = true, precision = 10, scale = 7)
     private BigDecimal storeLatitude;
 
-    @Column(name = "store_longitude", precision = 10, scale = 7)
+    @Column(name = "store_longitude", nullable = true, precision = 10, scale = 7)
     private BigDecimal storeLongitude;
 
     // (고객 목적지 좌표, Kakao Navigation의 도착지)
-    @Column(name = "dropoff_latitude", precision = 10, scale = 7)
+    @Column(name = "dropoff_latitude", nullable = true, precision = 10, scale = 7)
     private BigDecimal dropoffLatitude;
 
-    @Column(name = "dropoff_longitude", precision = 10, scale = 7)
+    @Column(name = "dropoff_longitude", nullable = true, precision = 10, scale = 7)
     private BigDecimal dropoffLongitude;
     /*******************************************************************************/
 

@@ -83,39 +83,40 @@ public interface OrderDeliveryRepository extends JpaRepository<OrderDelivery, Lo
     @Query("""
                 select od from OrderDelivery od
                 join fetch od.storeOrder so
+                join fetch so.store s
                 left join fetch od.deliverer d
                 where od.deliveryId = :deliveryId
                 and d.delivererId = :delivererId
         """)
-     Optional<OrderDelivery> findDeliveryForDeliverer(
-        @Param("deliveryId") Long deliveryId,
-        @Param("delivererId") Long delivererId
-        );
+    Optional<OrderDelivery> findDeliveryForDeliverer(@Param("deliveryId") Long deliveryId,
+                                                @Param("delivererId") Long delivererId);
 
     // 내 배달 목록 (배달원)
     // order_delivery와 deliverer 테이블을 내부 조인시켜 delivererId를 찾는다.
     @Query("""
                 select distinct od from OrderDelivery od
                 join fetch od.storeOrder so
+                join fetch so.store s
                 join fetch od.deliverer d
                 where d.delivererId = :delivererId
                 order by od.orderDeliveryCreatedDate desc
         """)
-     List<OrderDelivery> findByDeliverer_DelivererId(@Param("delivererId") Long delivererId);
+    List<OrderDelivery> findByDeliverer_DelivererId(@Param("delivererId") Long delivererId);
 
       // 상태별 내 배달 조회 (배달원)
      @Query("""
                 select distinct od from OrderDelivery od
                 join fetch od.storeOrder so
+                join fetch so.store s
                 join fetch od.deliverer d
                 where d.delivererId = :delivererId
                 and od.orderDeliveryStatus = :orderDeliveryStatus
                 order by od.orderDeliveryCreatedDate desc
-        """)
-     List<OrderDelivery> findDeliveriesByDelivererInStatus(
-        @Param("delivererId") Long delivererId, 
+    """)
+    List<OrderDelivery> findDeliveriesByDelivererInStatus(
+        @Param("delivererId") Long delivererId,
         @Param("orderDeliveryStatus") DeliveryStatus orderDeliveryStatus
-        );
+    );
     /*******************************************************************************************************************/
 
     /* 01/21 - 배달원 정산 시 기간 조회에 필드명 반영 ***********************************************************************/

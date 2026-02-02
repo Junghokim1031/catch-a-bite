@@ -217,9 +217,9 @@ public class AuthServiceImpl implements AuthService {
             return new MeResponse(
                 deliverer.getDelivererId(),
                 loginKey,
-                loginKey,
+                deliverer.getDelivererName(),
                 roleName != null ? roleName : RoleConstant.ROLE_RIDER,
-                null,
+                deliverer.getDelivererMobile(),
                 accountType
             );
         }

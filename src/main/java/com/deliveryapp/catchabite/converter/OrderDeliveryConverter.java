@@ -23,7 +23,7 @@ public class OrderDeliveryConverter {
             .deliveryId(entity.getDeliveryId())
             .orderId(entity.getStoreOrder() != null ? entity.getStoreOrder().getOrderId() : null)
 
-            // ✅ 배정 전에는 deliverer가 null 가능
+            // 배정 전에는 deliverer가 null 가능
             .delivererId(entity.getDeliverer() != null ? entity.getDeliverer().getDelivererId() : null)
 
             .orderAcceptTime(entity.getOrderAcceptTime())
@@ -38,7 +38,9 @@ public class OrderDeliveryConverter {
             .orderDeliveryStatus(entity.getOrderDeliveryStatus())
             .orderDeliveryCreatedDate(entity.getOrderDeliveryCreatedDate())
 
-            // ✅ 01/26 추가된 위도/경도
+            .orderStatus(entity.getStoreOrder() != null ? entity.getStoreOrder().getOrderStatus() : null)
+
+            // 01/26 추가된 위도/경도
             .storeLatitude(entity.getStoreLatitude())
             .storeLongitude(entity.getStoreLongitude())
             .dropoffLatitude(entity.getDropoffLatitude())
@@ -49,10 +51,10 @@ public class OrderDeliveryConverter {
     public OrderDelivery toEntity(OrderDeliveryDTO dto) {
         if (dto == null) return null;
 
-        // ✅ storeOrder는 optional=false 이므로 orderId는 필수(DTO에서도 @NotNull)
+        // storeOrder는 optional=false 이므로 orderId는 필수(DTO에서도 @NotNull)
         StoreOrder storeOrderRef = em.getReference(StoreOrder.class, dto.getOrderId());
 
-        // ✅ deliverer는 배정 전 null 가능
+        // deliverer는 배정 전 null 가능
         Deliverer delivererRef = (dto.getDelivererId() == null)
             ? null
             : em.getReference(Deliverer.class, dto.getDelivererId());
@@ -74,7 +76,7 @@ public class OrderDeliveryConverter {
             .orderDeliveryStatus(dto.getOrderDeliveryStatus())
             .orderDeliveryCreatedDate(dto.getOrderDeliveryCreatedDate())
 
-            // ✅ 01/26 추가된 위도/경도
+            // 01/26 추가된 위도/경도
             .storeLatitude(dto.getStoreLatitude())
             .storeLongitude(dto.getStoreLongitude())
             .dropoffLatitude(dto.getDropoffLatitude())

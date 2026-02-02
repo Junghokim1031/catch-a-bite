@@ -71,6 +71,7 @@ public class DelivererAuthController {
 
         delivererRepository.save(Deliverer.builder()
             .delivererEmail(request.email())
+            .delivererName(request.name())
             .delivererMobile(request.mobile())
             .delivererPassword(passwordEncoder.encode(request.password()))
             .delivererVehicleType(type)

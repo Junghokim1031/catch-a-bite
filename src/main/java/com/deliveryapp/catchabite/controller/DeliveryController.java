@@ -1,6 +1,8 @@
 package com.deliveryapp.catchabite.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,7 +18,7 @@ import com.deliveryapp.catchabite.service.OrderDeliveryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-// ✅ A 방식: 배달원 액션은 delivererId를 Body로 받지 않고, 로그인(Principal)에서 꺼냄
+// 배달원 액션은 delivererId를 Body로 받지 않고, 로그인(Principal)에서 꺼냄
 @RestController
 @RequestMapping("/api/v1/deliveries")
 @RequiredArgsConstructor
@@ -40,39 +42,67 @@ public class DeliveryController {
     @PostMapping("/{deliveryId}/accept")
     public ResponseEntity<DeliveryApiResponseDTO<Void>> accept(
             @PathVariable Long deliveryId,
-            @AuthenticationPrincipal AuthUser user
+            Authentication authentication
     ) {
-        deliveryService.accept(deliveryId, user.getDelivererId());
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(DeliveryApiResponseDTO.fail("인증 정보가 없습니다."));
+        }
+
+        String principal = authentication.getPrincipal().toString();
+        deliveryService.acceptByPrincipal(deliveryId, principal);
+
         return ResponseEntity.ok(DeliveryApiResponseDTO.success("배달 요청을 수락했습니다."));
     }
+
 
     // 매장에서 픽업완료(배달원)
     @PostMapping("/{deliveryId}/pickup-complete")
     public ResponseEntity<DeliveryApiResponseDTO<Void>> pickupComplete(
             @PathVariable Long deliveryId,
-            @AuthenticationPrincipal AuthUser user
+            Authentication authentication
     ) {
-        deliveryService.pickupComplete(deliveryId, user.getDelivererId());
-        return ResponseEntity.ok(DeliveryApiResponseDTO.success("매장에서 픽업완료했습니다."));
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(DeliveryApiResponseDTO.fail("인증 정보가 없습니다."));
+        }
+
+        String principal = authentication.getPrincipal().toString();
+        deliveryService.pickupCompleteByPrincipal(deliveryId, principal);
+
+        return ResponseEntity.ok(DeliveryApiResponseDTO.success("픽업이 완료되었습니다."));
     }
 
     // 배달시작(배달원)
     @PostMapping("/{deliveryId}/start")
     public ResponseEntity<DeliveryApiResponseDTO<Void>> start(
             @PathVariable Long deliveryId,
-            @AuthenticationPrincipal AuthUser user
+            Authentication authentication
     ) {
-        deliveryService.startDelivery(deliveryId, user.getDelivererId());
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(DeliveryApiResponseDTO.fail("인증 정보가 없습니다."));
+        }
+
+        String principal = authentication.getPrincipal().toString();
+        deliveryService.startDeliveryByPrincipal(deliveryId, principal);
+
         return ResponseEntity.ok(DeliveryApiResponseDTO.success("배달이 시작되었습니다."));
     }
 
-    // 배달완료(배달원)
     @PostMapping("/{deliveryId}/complete")
     public ResponseEntity<DeliveryApiResponseDTO<Void>> complete(
             @PathVariable Long deliveryId,
-            @AuthenticationPrincipal AuthUser user
+            Authentication authentication
     ) {
-        deliveryService.completeDelivery(deliveryId, user.getDelivererId());
+        if (authentication == null || authentication.getPrincipal() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(DeliveryApiResponseDTO.fail("인증 정보가 없습니다."));
+        }
+
+        String principal = authentication.getPrincipal().toString();
+        deliveryService.completeDeliveryByPrincipal(deliveryId, principal);
+
         return ResponseEntity.ok(DeliveryApiResponseDTO.success("배달이 완료되었습니다."));
     }
 

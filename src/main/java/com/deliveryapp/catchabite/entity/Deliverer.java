@@ -32,7 +32,9 @@ public class Deliverer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "deliverer_id")
     private Long delivererId;
-
+    
+    @Column(name = "deliverer_name", nullable = false, length = 100)
+    private String delivererName;   // 라이더(배달원) 이름
 
     @Column(name = "deliverer_email", nullable = false, unique = true, length = 255)
     private String delivererEmail; // 로그인 이메일

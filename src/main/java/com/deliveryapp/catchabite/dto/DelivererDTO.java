@@ -19,7 +19,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DelivererDTO {
 
-    private Long delivererId;              
+    private Long delivererId;    
+    
+    private String delivererName;
 
     // (라이더 로그인 ID(email), 휴대폰 번호, PW)
     private String delivererEmail;            
