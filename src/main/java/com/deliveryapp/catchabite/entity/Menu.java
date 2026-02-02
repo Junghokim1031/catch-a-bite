@@ -44,7 +44,7 @@ public class Menu {
      * - 목록 조회 성능을 위해 menu 테이블에 직접 보관(denormalize)
      * - 추가 이미지는 menu_image 테이블에서 관리
      */
-    @Column(name = "menu_thumbnail_url")
+    @Column(name = "menu_thumbnail_url", length = 2048)
     private String menuThumbnailUrl;
 
     @OneToMany(mappedBy = "menu", fetch = FetchType.LAZY)

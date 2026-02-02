@@ -25,7 +25,7 @@ public class MenuImage {
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
-    @Column(name = "menu_image_url", nullable = false)
+    @Column(name = "menu_image_url", length = 2048, nullable = false)
     private String menuImageUrl;
 
     @Column(name = "menu_image_is_main", nullable = false)

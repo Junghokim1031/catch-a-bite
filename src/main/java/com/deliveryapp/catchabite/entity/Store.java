@@ -10,7 +10,7 @@ import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 
 @Entity
-@Table(name = "store")
+@Table(name = "store")  
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
@@ -143,3 +143,4 @@ public class Store {
     private StoreOwner storeOwner;
 
 }
+

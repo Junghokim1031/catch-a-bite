@@ -26,7 +26,7 @@ public class OwnerOrderController {
     private final OwnerOrderService ownerOrderService;
     private final OwnerContext ownerContext;
 
-    // 9-1) 주문 목록 조회 (✅ 페이징/기간필터/정렬 추가)
+    // 9-1) 주문 목록 조회 (페이징/기간필터/정렬 추가)
     @GetMapping
     public ResponseEntity<ApiResponse<PageResponseDTO<OwnerOrderDTO>>> list(
             Principal principal,

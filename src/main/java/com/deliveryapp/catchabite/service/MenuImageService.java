@@ -22,4 +22,6 @@ public interface MenuImageService {
     void setMainImage(Long storeOwnerId, Long storeId, Long menuId, Long menuImageId);
 
     void deleteMenuImage(Long storeOwnerId, Long storeId, Long menuId, Long menuImageId);
+
+    
 }
