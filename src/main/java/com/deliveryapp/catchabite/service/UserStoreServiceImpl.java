@@ -5,8 +5,6 @@ import com.deliveryapp.catchabite.converter.StoreConverter;
 import com.deliveryapp.catchabite.domain.enumtype.StoreCategory;
 import com.deliveryapp.catchabite.domain.enumtype.StoreOpenStatus;
 import com.deliveryapp.catchabite.dto.MenuCategoryWithMenusDTO;
-import com.deliveryapp.catchabite.dto.MenuDTO;
-import com.deliveryapp.catchabite.dto.MenuImageDTO;
 import com.deliveryapp.catchabite.dto.UserMenuImageDTO;
 import com.deliveryapp.catchabite.dto.UserStoreResponseDTO;
 import com.deliveryapp.catchabite.dto.UserStoreSummaryDTO;
