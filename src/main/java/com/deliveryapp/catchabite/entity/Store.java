@@ -103,6 +103,11 @@ public class Store {
         this.storeIntro = storeIntro;
     }
 
+    public void changeOperatingHours(Integer storeOpenTime, Integer storeCloseTime) {
+        this.storeOpenTime = storeOpenTime;
+        this.storeCloseTime = storeCloseTime;
+    }
+
 
     public void changeDeliveryCondition(Integer storeMinOrder, Integer storeMaxDist, Integer storeDeliveryFee) {
         this.storeMinOrder = storeMinOrder;

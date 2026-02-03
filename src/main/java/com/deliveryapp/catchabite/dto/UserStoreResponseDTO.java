@@ -28,8 +28,10 @@ public class UserStoreResponseDTO {
     private String storeAddress;
     private String storeCategory;
     private StoreOpenStatus storeOpenStatus; 
-
+    
     // --- Delivery Logic ---
+    private Integer storeOpenTime;
+    private Integer storeCloseTime;
     private Integer minOrderPrice;
     private Integer deliveryFee;
     private String estimatedDeliveryTime; // Placeholder (e.g. "30-45분")

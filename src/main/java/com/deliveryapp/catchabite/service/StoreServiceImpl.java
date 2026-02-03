@@ -106,6 +106,8 @@ public class StoreServiceImpl implements StoreService {
 				dto.getStoreIntro()
 		);
 
+		store.changeOperatingHours(dto.getStoreOpenTime(), dto.getStoreCloseTime());
+		
 		return StoreDTO.builder()
 				.storeId(store.getStoreId())
 				.storeName(store.getStoreName())
