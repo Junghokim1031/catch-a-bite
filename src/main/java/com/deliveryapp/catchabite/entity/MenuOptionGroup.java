@@ -24,16 +24,17 @@ public class MenuOptionGroup {
     @JoinColumn(name = "menu_id", nullable = false)
     private Menu menu;
 
+    @OneToMany(mappedBy = "menuOptionGroup", fetch = FetchType.LAZY)
+    @BatchSize(size = 100)
+    @Builder.Default
+    private List<MenuOption> menuOptions = new ArrayList<>();
+    
     @Column(name = "menu_option_group_name")
     private String menuOptionGroupName;
 
     @Column(name = "menu_option_group_required")
     private Boolean menuOptionGroupRequired;
 
-    @OneToMany(mappedBy = "menuOptionGroup", fetch = FetchType.LAZY)
-    @BatchSize(size = 100)
-    @Builder.Default
-    private List<MenuOption> menuOptions = new ArrayList<>();
 
     public void changeInfo(String name, Boolean required) {
 	this.menuOptionGroupName = name;

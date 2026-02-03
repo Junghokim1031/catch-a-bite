@@ -9,7 +9,6 @@ import com.deliveryapp.catchabite.dto.StorePatchRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreStatusChangeRequestDTO;
 import com.deliveryapp.catchabite.dto.StoreSummaryDTO;
 import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
-import com.deliveryapp.catchabite.dto.StoreOriginLabelDTO;
 import com.deliveryapp.catchabite.security.OwnerContext;
 import com.deliveryapp.catchabite.service.StoreService;
 

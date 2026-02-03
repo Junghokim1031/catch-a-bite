@@ -8,10 +8,14 @@ import com.deliveryapp.catchabite.auth.api.dto.SignUpRequest;
 import com.deliveryapp.catchabite.auth.api.dto.SignUpResponse;
 import com.deliveryapp.catchabite.auth.application.AuthService;
 import com.deliveryapp.catchabite.common.util.RoleNormalizer;
+
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.List;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -88,5 +92,26 @@ public class AuthController {
     @GetMapping("/me")
     public MeResponse me() {
         return authService.getMe();
+    }
+
+    // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
+        // 보안 컨텍스트 클리어
+        SecurityContextHolder.clearContext();
+    
+        // 세션 무효화
+        var session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+    
+        // 브라우저에 남아있는 JSESSIONID 쿠키 삭제
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+    
+        return ResponseEntity.ok().build();
     }
 }
