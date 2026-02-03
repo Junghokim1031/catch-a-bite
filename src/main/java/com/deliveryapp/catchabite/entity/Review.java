@@ -44,6 +44,9 @@ public class Review {
     @Column(name="review_created_at", nullable = false)
     private LocalDateTime reviewCreatedAt;
 
+    @OneToOne(mappedBy = "review", fetch = FetchType.LAZY)
+    private ReviewReply reviewReply;
+
     /**
      * 주문 최초 저장(INSERT) 직전에 reviewCreatedAt를 자동 세팅합니다.
      * 이미 reviewCreatedAt이 지정된 경우(외부 입력/특수 케이스)에는 덮어쓰이지 않습니다.

@@ -22,7 +22,8 @@ public class ReviewDTO {
     private BigDecimal reviewRating;
     private String reviewContent;
     private LocalDateTime reviewCreatedAt;
-
+    private String ownerReplyContent;
+    private LocalDateTime ownerReplyCreatedAt;
     /**
       * 디버깅용: DTO 매핑 후 null인 필드들을 로그로 출력함.
       * 생성/조회 시 의도치 않은 필드 누락을 감지하기 위해 사용.

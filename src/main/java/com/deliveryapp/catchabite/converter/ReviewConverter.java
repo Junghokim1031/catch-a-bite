@@ -6,6 +6,7 @@ import com.deliveryapp.catchabite.entity.Review;
 import com.deliveryapp.catchabite.entity.StoreOrder;
 import com.deliveryapp.catchabite.entity.AppUser;
 import com.deliveryapp.catchabite.entity.Store;
+import com.deliveryapp.catchabite.entity.ReviewReply;
 import lombok.RequiredArgsConstructor;
 
 @Component
@@ -17,7 +18,15 @@ public class ReviewConverter {
         
         // AppUser가 Lazy Loading일 수 있으므로 null 체크
         String nickname = (entity.getAppUser() != null) ? entity.getAppUser().getAppUserNickname() : "알 수 없음";
+        String replyContent = null;
+        java.time.LocalDateTime replyDate = null;
 
+        if (entity.getReviewReply() != null) {
+            ReviewReply reply = entity.getReviewReply();
+            replyContent = reply.getReviewReplyContent();
+            replyDate = reply.getReviewReplyCreatedAt();
+        }
+        
         return ReviewDTO.builder()
                 .reviewId(entity.getReviewId())
                 .storeOrderId(entity.getStoreOrder() != null ? entity.getStoreOrder().getOrderId() : null)
@@ -27,6 +36,8 @@ public class ReviewConverter {
                 .reviewRating(entity.getReviewRating())
                 .reviewContent(entity.getReviewContent())
                 .reviewCreatedAt(entity.getReviewCreatedAt())
+                .ownerReplyContent(replyContent)
+                .ownerReplyCreatedAt(replyDate)
                 .build();
     }
     

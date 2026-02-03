@@ -18,6 +18,7 @@ public class OwnerReviewDTO {
     private Long appUserId;
     private Long storeId;
     private String authorNickname;
+
     private BigDecimal reviewRating;
     private String reviewContent;
     private LocalDateTime reviewCreatedAt;
