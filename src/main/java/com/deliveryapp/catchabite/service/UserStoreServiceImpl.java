@@ -196,6 +196,10 @@ public class UserStoreServiceImpl implements UserStoreService {
             }
         }
 
+        Integer storeOpenTime = store.getStoreOpenTime();
+        Integer storeCloseTime = store.getStoreCloseTime();
+
+
         // 7. 최종 응답 DTO 생성
         return UserStoreResponseDTO.builder()
                 .storeId(store.getStoreId())
@@ -212,6 +216,8 @@ public class UserStoreServiceImpl implements UserStoreService {
                 .minOrderPrice(store.getStoreMinOrder())
                 .deliveryFee(store.getStoreDeliveryFee())
                 .estimatedDeliveryTime("20-30분")
+                .storeOpenTime(storeOpenTime)
+                .storeCloseTime(storeCloseTime)
                 .menuCategories(categoryDTOs)
                 .favoriteId(favoriteId) 
                 .build();
