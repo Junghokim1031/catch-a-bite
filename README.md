@@ -31,8 +31,10 @@
 * **Service Layer:** 핵심 비즈니스 로직 수행 (예: OrderService, PaymentService, SettlementService)
 * **Repository Layer:** JPA 및 Native Query를 활용한 데이터 관리
 * **DTO (Data Transfer Objects):** 계층 간 안전하고 명확한 데이터 전송
+* **Security & Auth:** Spring Security 기반의 세션 관리와 사용자 유형(User, Owner, Rider)별 RBAC(Role-Based Access Control) 권한 분리 구현
 
 ## 주요 기능
+사용자-점주-라이더 간의 실시간 데이터 연동이 가능한 통합 웹앱
 
 ### 고객 (App User)
 * **계정 관리:** 회원가입/로그인, 프로필 수정, 배송지(주소록) 관리
@@ -76,8 +78,8 @@ RESTful 원칙에 따라 설계된 주요 API 엔드포인트는 다음과 같�
 | **결제 (Payment)** | /api/payments | 결제 검증 및 상세 내역 |
 
 ## 팀원 소개
-* **김정호:** PM (Project Manager), 서기 및 통합담당자
-* **박성철:** PL (Project Lead)
-* **이주희:** DBA (Database Administrator)
-* **이주호:** 라이더 도메인 구현
-* **김진덕:** 인증 및 공통 모듈
+* **[김정호](https://junghokim1031.github.io/portfolio/):** PM (Project Manager), 서기 및 통합담당자
+* **[박성철](https://ps3542.github.io/portfolio/):** PL (Project Lead)
+* **[이주희](https://juhee121.github.io/portfolio/):** DBA (Database Administrator)
+* **[이주호](https://jhlee002.github.io/portfolio/):** 라이더 도메인 구현
+* **[김진덕](https://cave8026.github.io/portfolio/):** 인증 및 공통 모듈
